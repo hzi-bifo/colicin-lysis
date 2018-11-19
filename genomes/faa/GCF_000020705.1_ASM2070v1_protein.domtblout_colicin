@@ -1,0 +1,25 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+WP_000262102.1       -            162 UniRef50_A0A0W0TIU2  -            181   6.4e-38  128.4   8.9   1   1   1.6e-41   7.5e-38  128.1   8.9     4   154     2   152     1   157 0.96 colicin V production protein [Salmonella enterica]
+WP_001283341.1       -            626 UniRef50_P0297       -            521   1.5e-39  134.4  10.1   1   2         1   4.8e+03   -6.7  11.8   118   233   161   272   154   289 0.49 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_P0297       -            521   1.5e-39  134.4  10.1   2   2     3e-43   1.5e-39  134.4  10.1   286   521   383   626   340   626 0.84 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_P05819      -            511     2e-15   54.5   7.3   1   2      0.17     8e+02   -3.5   0.6   387   438    73   122    66   126 0.53 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_P05819      -            511     2e-15   54.5   7.3   2   2   4.2e-19     2e-15   54.5   7.3   311   507   442   622   392   625 0.77 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_P06716      -            626         0 1359.5  25.0   1   1         0         0 1359.3  25.0     1   626     1   626     1   626 1.00 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001132032.1       -            448 UniRef50_P06716      -            626   1.8e-06   24.5   0.0   1   1     1e-09   2.4e-06   24.1   0.0    12    62   393   447   385   448 0.86 MULTISPECIES: hypothetical protein [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_P08083      -            387   6.7e-10   36.5   5.2   1   1   2.1e-13     1e-09   35.9   5.2   186   358   438   609   386   625 0.83 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_Q47502      -            490   3.6e-42  143.1  11.2   1   2         1   4.8e+03  -12.7  19.5   197   283   177   267    57   284 0.44 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_Q47502      -            490   3.6e-42  143.1  11.2   2   2   7.5e-46   3.6e-42  143.1  11.2   266   490   401   626   375   626 0.94 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_Q9KJ98      -            490   3.6e-42  143.1  11.2   1   2         1   4.8e+03  -12.7  19.5   197   283   177   267    57   284 0.44 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+WP_001283341.1       -            626 UniRef50_Q9KJ98      -            490   3.6e-42  143.1  11.2   2   2   7.5e-46   3.6e-42  143.1  11.2   266   490   401   626   375   626 0.94 MULTISPECIES: colicin 1B [Enterobacteriaceae]
+#
+# Program:         hmmsearch
+# Version:         3.2.1 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      hmm/colicin.hmm
+# Target file:     genomes/faa/GCF_000020705.1_ASM2070v1_protein.faa
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000020705.1_ASM2070v1_protein.domtblout_colicin -E 0.0001 hmm/colicin.hmm genomes/faa/GCF_000020705.1_ASM2070v1_protein.faa 
+# Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
+# Date:            Mon Nov 19 17:01:13 2018
+# [ok]

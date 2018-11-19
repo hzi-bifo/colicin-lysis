@@ -1,0 +1,18 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+WP_000074137.1       -            165 Phage_lysozyme       PF00959.19   109   4.7e-31  105.6   0.1   1   1   2.4e-34   5.8e-31  105.3   0.1     2   108    49   154    48   155 0.98 lysozyme [Salmonella enterica]
+WP_000301013.1       -            179 Phage_lysozyme       PF00959.19   109   5.8e-25   86.0   0.0   1   1   3.1e-28   7.5e-25   85.7   0.0     1   109    50   168    50   168 0.96 lysozyme [Salmonella enterica]
+WP_001080030.1       -            164 Phage_lysis          PF03245.13   126   1.1e-51  172.4   9.1   1   1   5.2e-55   1.2e-51  172.2   9.1     2   125    30   154    29   155 0.98 lysis protein [Salmonella enterica]
+WP_001531485.1       -            145 Phage_lysis          PF03245.13   126     2e-39  132.7   3.2   1   1     1e-42   2.4e-39  132.5   3.2    15   126    36   144    23   144 0.93 lysis protein [Salmonella enterica]
+WP_000286100.1       -             67 Phage_holin_2_1      PF04971.12    64   1.5e-06   26.2   1.2   1   1   5.5e-10   2.6e-06   25.5   1.2     8    59    12    54     5    58 0.71 MULTISPECIES: hypothetical protein [Enterobacteriaceae]
+#
+# Program:         hmmsearch
+# Version:         3.2.1 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      hmm/lysis.hmm
+# Target file:     genomes/faa/GCF_000430085.2_ASM43008v2_protein.faa
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000430085.2_ASM43008v2_protein.domtblout_lysis -E 0.0001 hmm/lysis.hmm genomes/faa/GCF_000430085.2_ASM43008v2_protein.faa 
+# Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
+# Date:            Mon Nov 19 17:01:05 2018
+# [ok]

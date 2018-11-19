@@ -1,0 +1,19 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+WP_000984586.1       -            150 Phage_lysozyme       PF00959.19   109   2.7e-24   83.8   0.0   1   1     2e-27   3.1e-24   83.6   0.0     2   108    33   142    32   143 0.98 lysozyme [Salmonella enterica]
+WP_000229384.1       -            158 Phage_lysozyme       PF00959.19   109   6.2e-24   82.6   0.0   1   1     6e-27   9.1e-24   82.1   0.0     1   108    33   140    33   141 0.98 MULTISPECIES: lysozyme [Enterobacteriaceae]
+WP_001576629.1       -             54 Phage_lysozyme       PF00959.19   109     1e-05   24.0   0.0   1   1   6.9e-09     1e-05   24.0   0.0    69   108     6    46     1    47 0.91 lysozyme [Salmonella enterica]
+WP_077906338.1       -            149 Phage_lysis          PF03245.13   126   8.9e-31  104.7   0.9   1   1   4.5e-34     1e-30  104.5   0.9     2   126    24   148    23   148 0.95 lysis protein [Salmonella enterica]
+WP_000092299.1       -            155 Phage_lysis          PF03245.13   126   5.2e-29   99.0   1.9   1   1   2.6e-32     6e-29   98.8   1.9     2   126    30   154    29   154 0.95 lysis protein [Salmonella enterica]
+WP_110161804.1       -             62 Rz1                  PF06085.11    41   1.1e-20   71.2  10.9   1   1   3.1e-24   1.4e-20   70.8  10.9     1    41    20    62    20    62 0.99 hypothetical protein [Salmonella enterica]
+#
+# Program:         hmmsearch
+# Version:         3.2.1 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      hmm/lysis.hmm
+# Target file:     genomes/faa/GCF_000018385.1_ASM1838v1_protein.faa
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000018385.1_ASM1838v1_protein.domtblout_lysis -E 0.0001 hmm/lysis.hmm genomes/faa/GCF_000018385.1_ASM1838v1_protein.faa 
+# Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
+# Date:            Mon Nov 19 17:01:04 2018
+# [ok]

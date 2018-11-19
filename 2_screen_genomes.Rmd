@@ -1,0 +1,31 @@
+Step 2. Screen genomes
+==============================================
+
+**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+	line-height: 120%;
+}
+</style>
+
+# search for HMM hits
+
+In this steps we use hmmsearch to find matches of the the HMM models in the `hmm/` folder to the genomic collection in the `genomes/` folder. 
+
+```{bash, eval=F}
+parallel 'hmmsearch -E 0.0001 --domtblout {.}.domtblout_lysis hmm/lysis.hmm {}' ::: genomes/faa/*.faa
+parallel 'hmmsearch -E 0.0001 --domtblout {.}.domtblout_colicin hmm/colicin.hmm {}' ::: genomes/faa/*.faa
+```
+
+
+## Sessioninfo
+
+```{r}
+sessionInfo()
+```
+

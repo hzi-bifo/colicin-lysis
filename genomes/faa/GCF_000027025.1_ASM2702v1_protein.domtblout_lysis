@@ -1,0 +1,22 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+WP_024132440.1       -            165 Phage_lysozyme       PF00959.19   109     6e-32  108.5   0.1   1   1   6.2e-35   7.4e-32  108.2   0.1     2   108    49   154    48   155 0.98 lysozyme [Salmonella enterica]
+WP_014343824.1       -            150 Phage_lysozyme       PF00959.19   109   8.1e-24   82.3   0.0   1   1     8e-27   9.4e-24   82.1   0.0     2   108    33   142    32   143 0.98 lysozyme [Salmonella enterica]
+WP_000984581.1       -            150 Phage_lysozyme       PF00959.19   109   1.2e-22   78.6   0.0   1   1   1.1e-25   1.3e-22   78.4   0.0     2   108    33   142    32   143 0.97 lysozyme [Salmonella enterica]
+WP_001144118.1       -            165 Phage_lysozyme       PF00959.19   109   3.6e-18   64.1   0.0   1   1     4e-21   4.7e-18   63.8   0.0     7   109    43   152    34   152 0.94 lysozyme [Salmonella enterica]
+WP_001541990.1       -            159 Phage_lysis          PF03245.13   126   6.8e-51  169.8   9.1   1   1   6.7e-54   7.9e-51  169.6   9.1     2   125    24   148    23   149 0.98 lysis protein [Salmonella enterica]
+WP_001050825.1       -            161 Phage_lysis          PF03245.13   126   3.6e-50  167.4  10.0   1   1   3.6e-53   4.2e-50  167.2  10.0     2   126    35   160    34   160 0.99 lysis protein [Salmonella enterica]
+WP_024132441.1       -            145 Phage_lysis          PF03245.13   126   2.7e-39  132.3   2.8   1   1   2.5e-42     3e-39  132.1   2.8     4   126    25   144    22   144 0.97 lysis protein [Salmonella enterica]
+WP_001533543.1       -            150 Phage_lysis          PF03245.13   126   1.4e-27   94.5   6.9   1   1   1.3e-30   1.6e-27   94.3   6.9     2   126    24   150    23   150 0.91 lysis protein [Salmonella enterica]
+WP_000286100.1       -             67 Phage_holin_2_1      PF04971.12    64   1.5e-06   26.2   1.2   1   1   5.5e-10   2.6e-06   25.5   1.2     8    59    12    54     5    58 0.71 MULTISPECIES: hypothetical protein [Enterobacteriaceae]
+#
+# Program:         hmmsearch
+# Version:         3.2.1 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      hmm/lysis.hmm
+# Target file:     genomes/faa/GCF_000027025.1_ASM2702v1_protein.faa
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000027025.1_ASM2702v1_protein.domtblout_lysis -E 0.0001 hmm/lysis.hmm genomes/faa/GCF_000027025.1_ASM2702v1_protein.faa 
+# Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
+# Date:            Mon Nov 19 17:01:04 2018
+# [ok]

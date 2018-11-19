@@ -1,0 +1,15 @@
+#                                                                            --- full sequence --- -------------- this domain -------------   hmm coord   ali coord   env coord
+# target name        accession   tlen query name           accession   qlen   E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from    to  from    to  acc description of target
+#------------------- ---------- ----- -------------------- ---------- ----- --------- ------ ----- --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ----- ---- ---------------------
+WP_000984587.1       -            150 Phage_lysozyme       PF00959.19   109   4.2e-24   83.2   0.0   1   1   1.1e-27   4.9e-24   83.0   0.0     2   108    33   142    32   143 0.98 lysozyme [Salmonella enterica]
+WP_001533543.1       -            150 Phage_lysis          PF03245.13   126   1.3e-27   94.5   6.9   1   1   3.3e-31   1.5e-27   94.3   6.9     2   126    24   150    23   150 0.91 lysis protein [Salmonella enterica]
+#
+# Program:         hmmsearch
+# Version:         3.2.1 (June 2018)
+# Pipeline mode:   SEARCH
+# Query file:      hmm/lysis.hmm
+# Target file:     genomes/faa/GCF_000439415.1_ASM43941v1_protein.faa
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000439415.1_ASM43941v1_protein.domtblout_lysis -E 0.0001 hmm/lysis.hmm genomes/faa/GCF_000439415.1_ASM43941v1_protein.faa 
+# Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
+# Date:            Mon Nov 19 17:01:05 2018
+# [ok]
