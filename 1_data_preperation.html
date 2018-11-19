@@ -334,7 +334,10 @@ make</code></pre>
 <pre class="bash"><code>mkdir -p genomes/seed
 parallel 'python tools/PhiSpy/genbank_to_seed.py {} {.}.seed' ::: genomes/gb/*.gbff
 mv genomes/gb/*.seed genomes/seed</code></pre>
-<pre class="bash"><code>parallel </code></pre>
+<p>nor we run PhiSpy on all seed files</p>
+<pre class="bash"><code>parallel 'python tools/PhiSpy/PhiSpy.py -i {} -o {.}.phispy_out' ::: genomes/seed/*.seed
+mkdir -p genomes/phispy
+mv genomes/seed/*.phispy_out genomes/phispy</code></pre>
 <div id="sessioninfo" class="section level2">
 <h2>Sessioninfo</h2>
 <pre class="r"><code>sessionInfo()</code></pre>

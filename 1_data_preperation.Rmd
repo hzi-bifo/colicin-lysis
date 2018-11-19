@@ -94,8 +94,11 @@ parallel 'python tools/PhiSpy/genbank_to_seed.py {} {.}.seed' ::: genomes/gb/*.g
 mv genomes/gb/*.seed genomes/seed
 ```
 
+nor we run PhiSpy on all seed files
 ```{bash, eval=F}
-parallel 
+parallel 'python tools/PhiSpy/PhiSpy.py -i {} -o {.}.phispy_out' ::: genomes/seed/*.seed
+mkdir -p genomes/phispy
+mv genomes/seed/*.phispy_out genomes/phispy
 ```
 
 ## Sessioninfo
