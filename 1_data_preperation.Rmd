@@ -1,0 +1,100 @@
+Step 1. Data preperation
+==============================================
+
+**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+	line-height: 120%;
+}
+</style>
+
+# prepeare Hidden Markov Models
+
+First we need to specify [HMM profiles](https://en.wikipedia.org/wiki/HMMER) for the proteins we want to identify. These were searched using the [Pfam website](https://pfam.xfam.org/search#tabview=tab2) for involved genes from [Ry. Young, 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/pmid/24585055/)
+
+- R encodes the endolysin
+- Rz and Rz1 are nested genes that encode outer membrane proteins that
+are auxiliary lysis factors.
+
+```{r, echo=F, results='asis'}
+library(knitr)
+table1 <- read.table("table1.csv", header=T, sep=";")
+kable(table1, caption = "gene families for prophage lysis-genes")
+```
+
+List of colicins are taken from https://de.wikipedia.org/wiki/Colicine. UniRef terms serached via [UniProt](https://www.uniprot.org/uniref/) with the search term _uniref50 "colicin B"_
+
+
+```{r, echo=F, results='asis'}
+library(knitr)
+table3 <- read.table("table3.csv", header=T, sep=";")
+kable(table3, caption = "Uniref for colicin genes")
+```
+
+The corresponding .fasta files are downloaded using the search term _cluster:UniRef50_P09883 AND identity:1.0_ where the UniRef ID is the corresponding ID from the table and saved to `hmm/colicin/`
+
+The full HMM models for the Pfam collection (v. 32) can be downloaded via EBI. This model consists of a collection of individual HMM profiles that can be extracted from this `.hmm` file. These individual HMM files have been placed to the `hmm/` folder (e.g. `hmm/PF04971.hmm`)
+
+```{bash, eval=F}
+wget ftp://ftp.ebi.ac.uk/pub/databases/Pfam/releases/Pfam32.0/Pfam-A.hmm.gz
+gunzip Pfam-A.hmm.gz
+```
+
+# prepare Salmonella genomes
+
+Now download all genomes form the [NCBI genome browser](https://www.ncbi.nlm.nih.gov/genome/browse/) using the search term _"Salmonella enterica"_ and filter for _"Prokaryotes"_ resulting in 9754 entries. Downloadable list are saved as `ncbi_list.csv`. Then we remove the first character from this file using following command.
+
+```{bash, eval=F}
+sed '1s/^.//' ncbi_list.csv > ncbi_list_with_header.csv
+```
+
+and read it to R and save the ftp location to the file `ftp_links.txt`
+
+```{r}
+dat <- read.table("ncbi_list_with_header.csv", header=T, sep=",")
+write.table(dat$RefSeq.FTP, file="ftp_links.txt", quote=F, col.names=F, row.names=F)
+```
+
+now we can use `wget` to download all genomic fasta files
+
+```{bash, eval=F}
+mkdir -p genomes
+mv ftp_links.txt genomes
+cd genomes
+wget -i ftp_links.txt -r -np -nd -A "*_genomic.fna.gz"
+wget -i ftp_links.txt -r -np -nd -A "*_genomic.gbff.gz"
+cd ..
+```
+
+# detection of prophages 
+
+We use PhiSpy [paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/) to detect prophages in genomes.
+
+```{bash, eval=F}
+mkdir -p tools
+cd tools
+git clone https://github.com/linsalrob/PhiSpy.git
+cd PhiSpy/ 
+make
+```
+
+We need to reformat the genomes, for that we use the `.gbff` files downloaded before
+
+```{r}
+#for gb in *.gbff; do
+#  python genbank_to_seed.py $gb ${gb%.*}
+#done
+```
+
+
+## sessionInfo
+
+```{r}
+sessionInfo()
+```
+
