@@ -315,27 +315,28 @@ gunzip Pfam-A.hmm.gz</code></pre>
 <pre class="r"><code>dat &lt;- read.table(&quot;ncbi_list_with_header.csv&quot;, header=T, sep=&quot;,&quot;)
 write.table(dat$RefSeq.FTP, file=&quot;ftp_links.txt&quot;, quote=F, col.names=F, row.names=F)</code></pre>
 <p>now we can use <code>wget</code> to download all genomic fasta files</p>
-<pre class="bash"><code>mkdir -p genomes
-mv ftp_links.txt genomes
-cd genomes
-wget -i ftp_links.txt -r -np -nd -A &quot;*_genomic.fna.gz&quot;
-wget -i ftp_links.txt -r -np -nd -A &quot;*_genomic.gbff.gz&quot;
-cd ..</code></pre>
+<pre class="bash"><code>mkdir -p genomes/fna
+wget -i ftp_links.txt -r -np -nd -A &quot;*_genomic.fna.gz&quot; -P genomes/fna
+gunzip genomes/fna/*.gz</code></pre>
 </div>
 <div id="detection-of-prophages" class="section level1">
 <h1>detection of prophages</h1>
-<p>We use PhiSpy <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/">paper</a> to detect prophages in genomes.</p>
+<p>We use PhiSpy (<a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/">paper</a>) to detect prophages in genomes. For this we have to download genebank entries for these genomes</p>
+<pre class="bash"><code>mkdir -p genomes/gb
+wget -i ftp_links.txt -r -np -nd -A &quot;*_genomic.gbff.gz&quot; -P genomes/gb
+gunzip genomes/gb/*.gz</code></pre>
 <pre class="bash"><code>mkdir -p tools
 cd tools
 git clone https://github.com/linsalrob/PhiSpy.git
 cd PhiSpy/ 
 make</code></pre>
-<p>We need to reformat the genomes, for that we use the <code>.gbff</code> files downloaded before</p>
-<pre class="r"><code>#for gb in *.gbff; do
-#  python genbank_to_seed.py $gb ${gb%.*}
-#done</code></pre>
+<p>We need to reformat the genomes to the seed format, for that we use the genebank <code>.gbff</code> files downloaded before. For this step you should have <a href="https://www.gnu.org/software/parallel/">GNU parallel</a> installed <code>sudo apt-get install parallel</code></p>
+<pre class="bash"><code>mkdir -p genomes/seed
+parallel 'python tools/PhiSpy/genbank_to_seed.py {} {.}.seed' ::: genomes/gb/*.gbff
+mv genomes/gb/*.seed genomes/seed</code></pre>
+<pre class="bash"><code>parallel </code></pre>
 <div id="sessioninfo" class="section level2">
-<h2>sessionInfo</h2>
+<h2>Sessioninfo</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-pc-linux-gnu (64-bit)

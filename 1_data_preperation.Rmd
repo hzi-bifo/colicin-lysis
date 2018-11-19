@@ -63,17 +63,20 @@ write.table(dat$RefSeq.FTP, file="ftp_links.txt", quote=F, col.names=F, row.name
 now we can use `wget` to download all genomic fasta files
 
 ```{bash, eval=F}
-mkdir -p genomes
-mv ftp_links.txt genomes
-cd genomes
-wget -i ftp_links.txt -r -np -nd -A "*_genomic.fna.gz"
-wget -i ftp_links.txt -r -np -nd -A "*_genomic.gbff.gz"
-cd ..
+mkdir -p genomes/fna
+wget -i ftp_links.txt -r -np -nd -A "*_genomic.fna.gz" -P genomes/fna
+gunzip genomes/fna/*.gz
 ```
 
 # detection of prophages 
 
-We use PhiSpy [paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/) to detect prophages in genomes.
+We use PhiSpy ([paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/)) to detect prophages in genomes. For this we have to download genebank entries for these genomes
+
+```{bash, eval=F}
+mkdir -p genomes/gb
+wget -i ftp_links.txt -r -np -nd -A "*_genomic.gbff.gz" -P genomes/gb
+gunzip genomes/gb/*.gz
+```
 
 ```{bash, eval=F}
 mkdir -p tools
@@ -83,16 +86,19 @@ cd PhiSpy/
 make
 ```
 
-We need to reformat the genomes, for that we use the `.gbff` files downloaded before
+We need to reformat the genomes to the seed format, for that we use the genebank `.gbff` files downloaded before. For this step you should have [GNU parallel](https://www.gnu.org/software/parallel/) installed `sudo apt-get install parallel`
 
-```{r}
-#for gb in *.gbff; do
-#  python genbank_to_seed.py $gb ${gb%.*}
-#done
+```{bash, eval=F}
+mkdir -p genomes/seed
+parallel 'python tools/PhiSpy/genbank_to_seed.py {} {.}.seed' ::: genomes/gb/*.gbff
+mv genomes/gb/*.seed genomes/seed
 ```
 
+```{bash, eval=F}
+parallel 
+```
 
-## sessionInfo
+## Sessioninfo
 
 ```{r}
 sessionInfo()
