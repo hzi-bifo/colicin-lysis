@@ -1,7 +1,7 @@
 HMMER3/f [3.1b2 | February 2015]
 NAME  Phage_lysozyme
 ACC   PF00959.19
-DESC  Phage lysozyme
+DESC  PF00959
 LENG  109
 ALPH  amino
 RF    no
@@ -355,7 +355,7 @@ HMM          A        C        D        E        F        G        H        I   
           0.00641  5.05233        *  0.61958  0.77255  0.00000        *
 //
 HMMER3/f [3.1b2 | February 2015]
-NAME  Phage_lysis
+NAME  PF03245
 ACC   PF03245.13
 DESC  Bacteriophage Rz lysis protein
 LENG  126
@@ -762,7 +762,7 @@ HMM          A        C        D        E        F        G        H        I   
           0.01148  4.47288        *  0.61958  0.77255  0.00000        *
 //
 HMMER3/f [3.1b2 | February 2015]
-NAME  Phage_holin_2_1
+NAME  PF04971
 ACC   PF04971.12
 DESC  Bacteriophage P21 holin S
 LENG  64
@@ -983,7 +983,7 @@ HMM          A        C        D        E        F        G        H        I   
           0.01056  4.55611        *  0.61958  0.77255  0.00000        *
 //
 HMMER3/f [3.1b2 | February 2015]
-NAME  Rz1
+NAME  PF06085
 ACC   PF06085.11
 DESC  Lipoprotein Rz1 precursor
 LENG  41
@@ -1135,7 +1135,7 @@ HMM          A        C        D        E        F        G        H        I   
           0.00908  4.70590        *  0.61958  0.77255  0.00000        *
 //
 HMMER3/f [3.1b2 | February 2015]
-NAME  Muraidase
+NAME  PF11860
 ACC   PF11860.8
 DESC  N-acetylmuramidase
 LENG  175
