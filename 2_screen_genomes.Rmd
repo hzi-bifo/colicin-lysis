@@ -45,13 +45,8 @@ iterate_over_dom <- function(folder="genomes/faa", pattern="\\.domtblout_lysis",
 We call that function to iterate over the lysis hmm hits and save the table. 
 
 ```{r}
-library(DT)
 lysis_table <- iterate_over_dom(pattern="\\.domtblout_lysis", name="lysis")
 write.table(lysis_table, "genomes/hmm_matches/lysis.csv", sep=";", quote=F, row.names=F)
-```
-
-``` {r fig1, echo = FALSE, include=TRUE}
-datatable(lysis_table, class = 'white-space: nowrap')
 ```
 
 We do the same for the colicin hits

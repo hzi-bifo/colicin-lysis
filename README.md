@@ -3,3 +3,6 @@ Quantitative colicin gene analysis for Spriewald et al. paper "Evolutionary stab
 
 
 1. `1_data_preperation.Rmd` http://ec2-34-204-84-4.compute-1.amazonaws.com/~pmuench/1_data_preperation.html
+2. `2_screen_genomes.Rmd` http://ec2-34-204-84-4.compute-1.amazonaws.com/~pmuench/2_screen_genomes.html
+3. `3_plot_matches.Rmd` http://ec2-34-204-84-4.compute-1.amazonaws.com/~pmuench/3_plot_matches.html
+

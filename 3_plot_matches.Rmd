@@ -1,0 +1,66 @@
+Step 3. Plot HMM matches
+==============================================
+
+**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+	line-height: 120%;
+}
+</style>
+
+# load matches
+
+We load the in step 2 created tables
+
+```{r}
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T)
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T)
+merged_all <- rbind(lysis, colicin)
+```
+
+to count the number of lysis elements we aggragate the table
+```{r}
+lysis$num <- 1
+lysis_agg <- aggregate(num ~ sample, data=lysis, FUN=sum)
+colicin$num <- 1
+colicin_agg <- aggregate(num ~ sample, data=colicin, FUN=sum)
+merged <- merge(colicin_agg,lysis_agg,by="sample")
+colnames(merged) <- c("sample", "colicin", "lysin")
+```
+
+We test for correlation of colicin presence and lysis gene prescence. 
+
+```{r}
+library(ggplot2)
+cor.test(merged$colicin, merged$lysin)
+options(warn=-1)
+p <- ggplot(merged, aes(x=colicin, y=lysin)) + geom_point() + geom_smooth()
+p
+```
+
+Generate per genome heatmap
+
+```{r}
+library(tidyr)
+library(ComplexHeatmap)
+merged_all$num <- 1
+heatmap_data <- aggregate(num ~ sample + query_name, data=merged_all, FUN=sum)
+heatmap_data <- spread(heatmap_data, query_name, num)
+heatmap_data[is.na(heatmap_data)] <- 0
+rownames(heatmap_data) <- heatmap_data$sample
+heatmap_data$sample <- NULL
+Heatmap(t(heatmap_data), show_column_names=FALSE)
+```
+
+
+## Sessioninfo
+
+```{r}
+sessionInfo()
+```
+
