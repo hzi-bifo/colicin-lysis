@@ -14,7 +14,7 @@ WP_001540671.1       -            149 Phage_lysis          PF03245.13   126   9.
 # Pipeline mode:   SEARCH
 # Query file:      hmm/lysis.hmm
 # Target file:     genomes/faa/GCF_000487295.3_ASM48729v3_protein.faa
-# Option settings: hmmsearch --domtblout genomes/faa/GCF_000487295.3_ASM48729v3_protein.domtblout_lysis -E 0.0001 hmm/lysis.hmm genomes/faa/GCF_000487295.3_ASM48729v3_protein.faa 
+# Option settings: hmmsearch --domtblout genomes/faa/GCF_000487295.3_ASM48729v3_protein.domtblout_lysis -E 0.0001 --cpu 1 hmm/lysis.hmm genomes/faa/GCF_000487295.3_ASM48729v3_protein.faa 
 # Current dir:     /home/pmuench/github.com/hzi-bifo/colicin-lysis
-# Date:            Mon Nov 19 17:01:06 2018
+# Date:            Tue Nov 20 13:04:51 2018
 # [ok]

@@ -18,10 +18,48 @@ h1 {
 In this steps we use hmmsearch to find matches of the the HMM models in the `hmm/` folder to the genomic collection in the `genomes/` folder. 
 
 ```{bash, eval=F}
-parallel 'hmmsearch -E 0.0001 --domtblout {.}.domtblout_lysis hmm/lysis.hmm {}' ::: genomes/faa/*.faa
-parallel 'hmmsearch -E 0.0001 --domtblout {.}.domtblout_colicin hmm/colicin.hmm {}' ::: genomes/faa/*.faa
+parallel 'hmmsearch -E 0.0001 --cpu 1 --domtblout {.}.domtblout_lysis hmm/lysis.hmm {}' ::: genomes/faa/*.faa
+parallel 'hmmsearch -E 0.0001 --cpu 1 --domtblout {.}.domtblout_colicin hmm/colicin.hmm {}' ::: genomes/faa/*.faa
 ```
 
+# process and join the hmmsearch output
+
+It would be too easy that hmmer outputs the results just in a tab-seperated format, instead we need a parser to read in these files...
+
+```{r, eval=F}
+iterate_over_dom <- function(folder="genomes/faa", pattern="\\.domtblout_lysis", name="lysis"){
+  require(rhmmer)
+  all <- NULL
+  lysis_files <- list.files(folder, pattern = pattern, full.names=T)
+  for (i in seq_along(lysis_files)){
+    dom <- as.data.frame(read_domtblout(lysis_files[i]))
+    if (nrow(dom) > 0){
+      dom <- cbind(sample=sub(pattern,"",basename(lysis_files[i])), type=name, dom)
+    }
+  all <- rbind(all, dom)
+  }
+  return(all)
+}
+```
+
+We call that function to iterate over the lysis hmm hits and save the table. 
+
+```{r}
+library(DT)
+lysis_table <- iterate_over_dom(pattern="\\.domtblout_lysis", name="lysis")
+write.table(lysis_table, "genomes/hmm_matches/lysis.csv", sep=";", quote=F, row.names=F)
+```
+
+``` {r fig1, echo = FALSE, include=TRUE}
+datatable(lysis_table, class = 'white-space: nowrap')
+```
+
+We do the same for the colicin hits
+
+```{r}
+colicin_table <- iterate_over_dom(pattern="\\.domtblout_colicin", name="colicin")
+write.table(colicin_table, "genomes/hmm_matches/colicin.csv", sep=";", quote=F, row.names=F)
+```
 
 ## Sessioninfo
 
