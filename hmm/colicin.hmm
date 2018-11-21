@@ -1,5 +1,5 @@
 HMMER3/f [3.2.1 | June 2018]
-NAME  UniRef50_A0A0W0TIU2
+NAME  Colicin V
 LENG  181
 ALPH  amino
 RF    no
@@ -564,7 +564,7 @@ HMM          A        C        D        E        F        G        H        I   
           0.31302  1.31392        *  0.76161  0.62907  0.00000        *
 //
 HMMER3/f [3.2.1 | June 2018]
-NAME  UniRef50_P0297
+NAME  Colicin-E1
 LENG  521
 ALPH  amino
 RF    no
