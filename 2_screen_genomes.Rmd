@@ -22,38 +22,43 @@ parallel 'hmmsearch -E 0.0001 --cpu 1 --domtblout {.}.domtblout_lysis hmm/lysis.
 parallel 'hmmsearch -E 0.0001 --cpu 1 --domtblout {.}.domtblout_colicin hmm/colicin.hmm {}' ::: genomes/faa/*.faa
 ```
 
+these were submitted as a SGE job to the grid using `qsub -N hmmsearch -M pmu15@helmholtz-hzi.de -m ea -l mem_free=2G -pe smp 20 -cwd hmmer.sh` and took a few minutes. The location of `hmmsearch` at the grid is `/net/metagenomics/projects/colicin-lysis/tools/hmmer-3.2.1/bin/bin/hmmsearch`. 
+
 # process and join the hmmsearch output
 
 It would be too easy that hmmer outputs the results just in a tab-seperated format, instead we need a parser to read in these files...
 
 ```{r, eval=F}
-iterate_over_dom <- function(folder="genomes/faa", pattern="\\.domtblout_lysis", name="lysis"){
+iterate_over_dom <- function(folder="genomes/hmmmatches/all_colicin", pattern="\\.domtblout_colicin", name="colicin"){
   require(rhmmer)
   all <- NULL
   lysis_files <- list.files(folder, pattern = pattern, full.names=T)
+  pb <- txtProgressBar(min = 0, max = length(lysis_files), style = 3)
   for (i in seq_along(lysis_files)){
     dom <- as.data.frame(read_domtblout(lysis_files[i]))
     if (nrow(dom) > 0){
       dom <- cbind(sample=sub(pattern,"",basename(lysis_files[i])), type=name, dom)
     }
+    setTxtProgressBar(pb, i)
   all <- rbind(all, dom)
   }
+  close(pb)
   return(all)
 }
 ```
 
 We call that function to iterate over the lysis hmm hits and save the table. 
 
-```{r}
-lysis_table <- iterate_over_dom(pattern="\\.domtblout_lysis", name="lysis")
-write.table(lysis_table, "genomes/hmm_matches/lysis.csv", sep=";", quote=F, row.names=F)
+```{r, eval=F}
+colicin_table <- iterate_over_dom(folder="genomes/hmmmatches/all_colicin", pattern="\\.domtblout_colicin", name="colicin")
+write.table(colicin_table, "genomes/hmm_matches/colicin.csv", sep=";", quote=F, row.names=F)
 ```
 
 We do the same for the colicin hits
 
-```{r}
-colicin_table <- iterate_over_dom(pattern="\\.domtblout_colicin", name="colicin")
-write.table(colicin_table, "genomes/hmm_matches/colicin.csv", sep=";", quote=F, row.names=F)
+```{r, eval=F}
+lysis_table <- iterate_over_dom(folder="genomes/hmmmatches/all_lysis", pattern="\\.domtblout_lysis", name="lysis")
+write.table(lysis_table, "genomes/hmm_matches/lysis.csv", sep=";", quote=F, row.names=F)
 ```
 
 ## Sessioninfo

@@ -1,4 +1,5 @@
 Step 3. Plot HMM matches
+
 ==============================================
 
 **Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
@@ -15,48 +16,150 @@ h1 {
 
 # load matches
 
-We load the in step 2 created tables
+```{r}
+rm(list = ls())
+library(tidyr)
+library(ComplexHeatmap)
+library(ggplot2)
+library(reshape2)
+```
+
+Load the in Step 2 created tables. 
 
 ```{r}
-lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T)
-colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T)
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
 merged_all <- rbind(lysis, colicin)
 ```
 
-to count the number of lysis elements we aggragate the table
+Rename some HMM names to the PF or UniRef number to make sure we can later match it to the `table1.csv` and `table3.csv`
+
 ```{r}
-lysis$num <- 1
-lysis_agg <- aggregate(num ~ sample, data=lysis, FUN=sum)
-colicin$num <- 1
-colicin_agg <- aggregate(num ~ sample, data=colicin, FUN=sum)
-merged <- merge(colicin_agg,lysis_agg,by="sample")
-colnames(merged) <- c("sample", "colicin", "lysin")
+merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
 ```
 
-We test for correlation of colicin presence and lysis gene prescence. 
+get the data in the wide format from the long format
 
 ```{r}
-library(ggplot2)
-cor.test(merged$colicin, merged$lysin)
-options(warn=-1)
-p <- ggplot(merged, aes(x=colicin, y=lysin)) + geom_point() + geom_smooth()
+lysis$dummy <- 1
+lysis_agg <- aggregate(dummy ~ sample, data=lysis, FUN=sum)
+colicin$dummy <- 1
+colicin_agg <- aggregate(dummy ~ sample, data=colicin, FUN=sum)
+merged <- merge(colicin_agg, lysis_agg, by="sample")
+colnames(merged) <- c("sample", "colicin", "lysin")
+merged_all$dummy <- 1
+wide_data <- aggregate(dummy ~ sample + query_name, data=merged_all, FUN=sum)
+wide_data <- spread(wide_data, query_name, dummy)
+wide_data[is.na(wide_data)] <- 0
+rownames(wide_data) <- wide_data$sample
+wide_data$sample <- NULL
+wide_data$sample <- rownames(wide_data)
+#chart.Correlation(heatmap_data, histogram=TRUE, pch=19)
+```
+
+```{r, fig.width=12}
+df_m <- melt(wide_data, value.names=sample)
+df_m$text <- ""
+df_m[which(df_m$value == 0),]$text <- "a 0"
+df_m[which(df_m$value == 1),]$text <- "b 1"
+df_m[which(df_m$value > 1),]$text <- "c 2-5"
+df_m[which(df_m$value > 5),]$text <- "d >5"
+df_m$dummy <- 1
+df <- aggregate(dummy ~ variable + text, data=df_m, FUN=sum)
+# load pfam/UniRef annotations
+annot <- read.table("table1.csv", header=T, sep=";")
+annot_c <- read.table("table3.csv", header=T, sep=";")
+annot_both <- rbind(annot, annot_c)
+df$description <- NULL
+df$description <- annot_both[match(df$variable, annot_both$ID),]$description
+df$group <- annot_both[match(df$variable, annot_both$ID),]$group
+
+# instead of showing the raw number on the x axis, we can show the %
+df_percent <- df
+df_percent$dummy <- df_percent$dummy / 9499
+
+p <- ggplot(df_percent, aes(x=reorder(description, dummy) , y=dummy, fill=text)) 
+p <- p + coord_flip() + facet_grid(group~., space = "free", scale="free")
+p <- p + geom_bar(stat="identity") + theme_classic() 
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + scale_y_continuous(labels = scales::percent)
+p <- p + labs(x="", y="fraction of genomes", fill="number of HMM matches")
 p
 ```
 
-Generate per genome heatmap
+We plot the data now as a histogram, showing th number of occurence per pfam/uniref found in the genomes. 
+
+
 
 ```{r}
-library(tidyr)
-library(ComplexHeatmap)
-merged_all$num <- 1
-heatmap_data <- aggregate(num ~ sample + query_name, data=merged_all, FUN=sum)
-heatmap_data <- spread(heatmap_data, query_name, num)
-heatmap_data[is.na(heatmap_data)] <- 0
-rownames(heatmap_data) <- heatmap_data$sample
-heatmap_data$sample <- NULL
-Heatmap(t(heatmap_data), show_column_names=FALSE)
+## Convert a byte-compiled function to an interpreted-code function 
+unByteCode <- function(fun)
+    {
+        FUN <- eval(parse(text=deparse(fun)))
+        environment(FUN) <- environment(fun)
+        FUN
+    }
+
+## Replace function definition inside of a locked environment **HACK** 
+assignEdgewise <- function(name, env, value)
+    {
+        unlockBinding(name, env=env)
+        assign( name, envir=env, value=value)
+        lockBinding(name, env=env)
+        invisible(value)
+    }
+
+## Replace byte-compiled function in a locked environment with an interpreted-code
+## function
+unByteCodeAssign <- function(fun)
+    {
+        name <- gsub('^.*::+','', deparse(substitute(fun)))
+        FUN <- unByteCode(fun)
+        retval <- assignEdgewise(name=name,
+                                 env=environment(FUN),
+                                 value=FUN
+                                 )
+        invisible(retval)
+    }
+
+## Use the above functions to convert stats:::plotNode to interpreted-code:
+unByteCodeAssign(stats:::plotNode)
+
+## Now raise the interpreted code recursion limit (you may need to adjust this,
+##  decreasing if it uses to much memory, increasing if you get a recursion depth error ).
+options(expressions=5e4)
 ```
 
+```{r, fig.width=12}
+wide_data.m <- melt(wide_data)
+wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
+wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
+
+p <- ggplot(wide_data.m, aes(value, fill=group)) + geom_histogram(binwidth=1, color="black") + facet_wrap(group~ description, ncol=5)
+p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes)")
+p <- p + theme(strip.text.x = element_text(size = 7))
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + scale_x_continuous(breaks=0:10)
+p
+```
+
+plotting the number of occurence per genome in a heatmap
+
+```{r, fig.width=12, fig.height=12}
+library(gplots)
+wide_data$sample <- NULL
+colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n=599))
+heatmap.2(data.matrix(wide_data),
+	density.info="none",
+	trace="none",
+	labRow = FALSE,
+	margins = c(22, 5),
+	notecol="black",
+	col = color.palette)
+```
 
 ## Sessioninfo
 
