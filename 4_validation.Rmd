@@ -22,10 +22,11 @@ library(DT)
 To check whether the HMM matches are TP, we can check the ORF annotation of the HMM matching region. We use a grep on the terms "lys" and "hypotetical". It seems that most are annotated correctly. 
 
 ```{r}
+acc_threshold <- 0.90
 lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
-
+lysis <- lysis[which(lysis$acc > acc_threshold),]
 print(paste0(round(length(grep("lys", lysis$description))/nrow(lysis)*100), "%", " annotated as lysis")) 
-print(paste0(round(length(grep("hypothetical", lysis$description))/nrow(lysis)*100), "%", " annotated as hypothetical")) 
+print(paste0(round(length(grep("hypothetical", lysis$description))/nrow(lysis)*100), "%", " annotated as hypothetical"))
 ```
 
 Now we can check what annotation have the remaining matches.
@@ -43,6 +44,7 @@ We can do the same for the Colicin UniRef hits. It seems that in general colicin
 
 ```{r}
 colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
+colicin <- colicin[which(colicin$acc > acc_threshold),]
 colicin[which(colicin$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
 colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
 
@@ -73,55 +75,103 @@ colicin$dummy <- 1
 agg <- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)
 ```
 
-Now we can spot check by hand the most occuring ORF annotations for Colicin clusters. We see here that some seems to be specific (e.g. Colicin V) while other are non specific and show matches to Colicin E and B for example.
+
+## Colicin ORF hits {.tabset .tabset-fade}
+Now we can spot check by hand the most occuring ORF annotations for Colicin clusters. We see here that some seems to be specific (e.g. Colicin V) while other are non specific and show matches to Colicin E and B for example. The number in the _dummy_ column shows the number of ORF hits of the HMM model.
+
+### B
+
 ```{r}
 query <- "Cluster: Colicin-B"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### M
+
+```{r}
+query <- "Cluster: Colicin-M"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 10))
+```
+
+
+### E1
 
 ```{r}
 query <- "Cluster: Colicin-E1"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### E9
+
+```{r}
+query <- "Cluster: Colicin-E9"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 10))
+```
+
+
+
+### V
 
 ```{r}
 query <- "Cluster: Colicin V"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### N
 
 ```{r}
 query <- "Cluster: Colicin-N"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### D
 
 ```{r}
 query <- "Cluster: Colicin-D"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### Ia
 
 ```{r}
 query <- "Cluster: Colicin-Ia"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### K
 
 ```{r}
 query <- "Cluster: Colicin-K"
 agg_subset <- agg[which(agg$description2 == query),]
 agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 5))
+datatable(agg_subset, options = list(pageLength = 10))
 ```
+
+### Y
+
+```{r}
+query <- "Cluster: Colicin Y"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 10))
+```
+
 
 ## Sessioninfo
 

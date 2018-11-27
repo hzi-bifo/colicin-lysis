@@ -1,5 +1,4 @@
-Step 3. Plot HMM matches
-
+Step 2. Plot HMM occurences
 ==============================================
 
 **Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
@@ -10,11 +9,12 @@ Step 3. Plot HMM matches
 
 <style type="text/css">
 h1 {
-	line-height: 120%;
+    line-height: 120%;
 }
 </style>
 
-# load matches
+
+load libraries
 
 ```{r}
 rm(list = ls())
@@ -22,17 +22,21 @@ library(tidyr)
 library(ComplexHeatmap)
 library(ggplot2)
 library(reshape2)
+library(gplots)
 ```
 
-Load the in Step 2 created tables. 
+In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
 
 ```{r}
 lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
 colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
 merged_all <- rbind(lysis, colicin)
+acc_threshold <- 0.90
+merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
 ```
 
-Rename some HMM names to the PF or UniRef number to make sure we can later match it to the `table1.csv` and `table3.csv`
+
+we replace the HMM description with the Pfam/UniRef ID for three gene families to make sure we can match later these to the `table1.csv` and `table3.csv`
 
 ```{r}
 merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
@@ -40,7 +44,7 @@ merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A
 merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
 ```
 
-get the data in the wide format from the long format
+get the data in the wide format (pfam vs. genomes) from the long format (each match to the HMM is one row)
 
 ```{r}
 lysis$dummy <- 1
@@ -58,6 +62,8 @@ wide_data$sample <- NULL
 wide_data$sample <- rownames(wide_data)
 #chart.Correlation(heatmap_data, histogram=TRUE, pch=19)
 ```
+
+We prepare the data for plotting and creating a overview figure showing how many genomes (in % of all 9499 genomes) have a match. 
 
 ```{r, fig.width=12}
 df_m <- melt(wide_data, value.names=sample)
@@ -89,49 +95,6 @@ p <- p + labs(x="", y="fraction of genomes", fill="number of HMM matches")
 p
 ```
 
-We plot the data now as a histogram, showing th number of occurence per pfam/uniref found in the genomes. 
-
-
-
-```{r}
-## Convert a byte-compiled function to an interpreted-code function 
-unByteCode <- function(fun)
-    {
-        FUN <- eval(parse(text=deparse(fun)))
-        environment(FUN) <- environment(fun)
-        FUN
-    }
-
-## Replace function definition inside of a locked environment **HACK** 
-assignEdgewise <- function(name, env, value)
-    {
-        unlockBinding(name, env=env)
-        assign( name, envir=env, value=value)
-        lockBinding(name, env=env)
-        invisible(value)
-    }
-
-## Replace byte-compiled function in a locked environment with an interpreted-code
-## function
-unByteCodeAssign <- function(fun)
-    {
-        name <- gsub('^.*::+','', deparse(substitute(fun)))
-        FUN <- unByteCode(fun)
-        retval <- assignEdgewise(name=name,
-                                 env=environment(FUN),
-                                 value=FUN
-                                 )
-        invisible(retval)
-    }
-
-## Use the above functions to convert stats:::plotNode to interpreted-code:
-unByteCodeAssign(stats:::plotNode)
-
-## Now raise the interpreted code recursion limit (you may need to adjust this,
-##  decreasing if it uses to much memory, increasing if you get a recursion depth error ).
-options(expressions=5e4)
-```
-
 ```{r, fig.width=12}
 wide_data.m <- melt(wide_data)
 wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
@@ -145,10 +108,9 @@ p <- p + scale_x_continuous(breaks=0:10)
 p
 ```
 
-plotting the number of occurence per genome in a heatmap
+plotting the number of occurence per genome in a heatmap. 
 
 ```{r, fig.width=12, fig.height=12}
-library(gplots)
 wide_data$sample <- NULL
 colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
 color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n=599))
