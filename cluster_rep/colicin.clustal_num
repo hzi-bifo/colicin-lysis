@@ -1,0 +1,272 @@
+CLUSTAL O(1.2.4) multiple sequence alignment
+
+
+colicin-M       ME-------------------------------------T--------------------	3
+Colicin-E5      MAEG-----------------K----LNDELAKNKGKIPGLKIDQKIRGQMPERGWTEDD	39
+colicin-E1      METAV---------------------------AYYKD--GVPYD----DK--GQVIIT--	23
+colicin-K       MAKEL---------------------------SGYGPTAGESMG----GT--GANLNQQG	27
+colicin-FY      ----------------------------MTDYKDVDPFERQVM-----------------	15
+colicin-Ia      MSDPVRITNPGAESLGYDSDGHEI----MAVDIYVNPPRVDVFH----GT--PPAWS-SF	49
+colicin-Ib      MSDPVRITNPGAESLGYDSDGHEI----MAVDIYVNPPRVDVFH----GT--PPAWS-SF	49
+colicin-V       ------------------------------------------------------------	0
+colicin-E9      MS-------------GGDGRGHNTGAHSTSGNINGGPTGIGVSG----GASDGSGWSSEN	43
+colicin-N       ------------------------------------------------------------	0
+colicin-Y       MV--------------------------CFKSQRGMNMPGFNYG----GYGDGTGWSSES	30
+colicin-B       MS--------------------------D--NEGSVPTEGIDYG----DT--MVVWPS--	24
+colicin-D       MS--------------------------D--YEGSGPTEGIDYG----HS--MVVWPS--	24
+                                                                            
+
+colicin-M       ------------------------------------------------------------	3
+Colicin-E5      I----------------------KNTVSNGATGTS-------------------------	52
+colicin-E1      ------LLNGT--PDGSGSGGGGGKGGSKSESSA--AI----HATAKWSTAQLKKTQAEQ	69
+colicin-K       GNNN--SNSGVHWGGGSGHGNNGGQGNSNSSGSTSTVMKTGESYLTPWGDVVINNDGLPV	85
+colicin-FY      ------------------------------------------------------------	15
+colicin-Ia      GNKT--IWGGNEWVDDSPTRSDIEKRDKE-----IT------AYKNTLSAQQKENENKRT	96
+colicin-Ib      GNKT--IWGGNEWVDDSPTRSDIEKRDKE-----IT------AYKNTLSAQQKENENKRT	96
+colicin-V       ------------------------------------------------------------	0
+colicin-E9      NPWGGGSGSGIHWGGGSGRGNGGGNGNSGGGSGTGGNL--SAV-----------------	84
+colicin-N       ------------------------------------------------------------	0
+colicin-Y       GGPAPG--GGM-------------HGNSGGQRGDNANS--SNSVSQQISAIQNDQKL---	70
+colicin-B       TGRIPG--GDV-------------KP--GGSSGL--------------------------	41
+colicin-D       TGLISG--GDV-------------KP--GGSSGI--------------------------	41
+                                                                            
+
+colicin-M       ---------LTVHAPSPST------------------------------NLPSYGNGA--	22
+Colicin-E5      -----------FDKRSPKKTPPDYLGRN--------------------------------	69
+colicin-E1      AAR------AKAAAEAQAKAKANRDA------LTQ-RLK---------------DIVNEA	101
+colicin-K       MNG------IVMTEENSTLVDNPFGG------VSR-VLNSLIS------DM--PSLFAES	124
+colicin-FY      -------------------------------------------------ESLGYGWVSQG	26
+colicin-Ia      EAGKRLSAAIAAREKDENTLKTLRAGNADAADITRQEFRLLQA------ELREYGFRTEI	150
+colicin-Ib      EAGKRLSAAIAAREKDENTLKTLRAGNADAADITRQEFRLLQA------ELREYGFRTEI	150
+colicin-V       -------------------MPWD------WVDLVIIGIIALSVV------------TGLI	23
+colicin-E9      ------------------AAPVA-------------------------------------	89
+colicin-N       ------------------------------------------------------------	0
+colicin-Y       -KQKVVNMLIAARKMNP-EAKMI------LGSIAPSGVMQVTIEGVTSTQAKQLGLGGLV	122
+colicin-B       ---------------AP-SMPPG------WGDYSPQGIALVQ------------------	61
+colicin-D       ---------------AP-SMPPG------WGDYSPQGIALVQ------------------	61
+                                                                            
+
+colicin-M       --------------------FSLSAPHVPGAG----------------------------	34
+Colicin-E5      ---------------DPATVYGSPGK--------YVVVNDRTG-----EVTQISDKTDPG	101
+colicin-E1      LRHNASR--T------------PSATELAHANNAAMQAEDERLRLAKAEEKARK---EAE	144
+colicin-K       SGNNNNN--T------------ASVNT-A-PTNAQVSDMDKSSKV---------------	153
+colicin-FY      EGS--WQKGE------------ISGA--IDNDTMTVTG----------------------	48
+colicin-Ia      AGYDALRLHT------------ESRMLFADADSLRISPREARSLIEQAEKRQKDAQNADK	198
+colicin-Ib      AGYDALRLHT------------ESRMLFADADSLRISPREARSLIEQAEKRQKDAQNADK	198
+colicin-V       RGF-----------------------------------V----------KELIAMGVW--	36
+colicin-E9      --------------------FGFPALSTPGAGGLAVSIS---------------ASELS-	113
+colicin-N       MGS--------NG-ADNAHNNAFGGGKNPGIGNTSGAGSN--------GSASSNRGNSNG	43
+colicin-Y       MGYNASGVIGAVGEIDTGHRLNASGASTPGSETSVESFV----------NGQKPAGEWH-	171
+colicin-B       ------------------------SVLFPGII--RRIIL----------DKELEEGDWSG	85
+colicin-D       ------------------------SVLFPGII--RRIIL----------DKELEEGDWSG	85
+                                                                            
+
+colicin-M       ------------------------------------------------------------	34
+Colicin-E5      WVDDSRIQWGNKNDQ---------------------------------------------	116
+colicin-E1      AAEKAFQEAEQRR---------KEIEREKAETERQLKLAEAE----EKRL----------	181
+colicin-K       -VSNVINEKQKQK---------NKIATQISE--KQKKIEEMKKVFKHHSY----------	191
+colicin-FY      WNGAIPTSPSGRP---------HIWDQKISELNNARQNSIDDNDDDVTPT----------	89
+colicin-Ia      KAADMLAEYERRK---------GILDTRLSELEKNGGAALAVLDAQQARL----------	239
+colicin-Ib      KAADMLAEYERRK---------GILDTRLSELEKNGGAALAVLDAQQARL----------	239
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      --AAIAGIIAKLKKVNL----------KFTPFGVVLSSLIPSEIAK-----------DDP	150
+colicin-N       WS------WSNKPHKNDGFHSDGSY--HITFHGDNNSKPKPG------------------	77
+colicin-Y       --AVAKDSWTGAGPVNVGLVNNAIKSVRIIKKGYVTGVLLPEEVMNKAEYKAM------R	223
+colicin-B       WSVSVHSPWGNEKVSA---------ARTVLENGLRGGLPEPSRPAA-VSFARLEPASGNE	135
+colicin-D       WSVSVHSPWGNEKVSA---------ARTVLENGLRGGLPEPSRPAA-VSFARLEPASGNE	135
+                                                                            
+
+colicin-M       ------------------------------------------------------------	34
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ------AALSEEAKAVEIAQKKLSAAQSE------------------VVKMDGEIKTLNS	217
+colicin-K       ------HGITDLERDVDELQKKSNQLDAD------------------ISKLNSYKNTLQS	227
+colicin-FY      -------SDHEKNQRREASAKALKYTSDI------------------ESKVNEQLNVINN	124
+colicin-Ia      ------LGQQTRNDR------AISEARNK------------------LSSVTESLNTARN	269
+colicin-Ib      ------LGQQTRNDR------AISEARNK------------------LSSVTESLKTARN	269
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      NMMSKIVTSLPADDITESPVSSLPLDKATVNV---------NVRVVDDVKDERQNISVVS	201
+colicin-N       ---------------------------------------------------GNSGNRGNN	86
+colicin-Y       QAFDSLPLAKQGEAVRQIVAA-WSLAYQDFPVNLKKDMGRVTERVVDAVNLALILNQISS	282
+colicin-B       QKIIRLMVTQQLEQVTDIPASQLPAAGNNVPVKY---------RLTDLMQNGTQYMAIIG	186
+colicin-D       QKIIRLMVTQQLEQVTDIPASQLPAAGNNVPVKY---------RLMDLMQNGTQYMAIIG	186
+                                                                            
+
+colicin-M       ------------------------------------------------------------	34
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      RLSSSIHARDA-----------EMKTLA------------------------GK------	236
+colicin-K       KIGDVNKQKEAEEKARENAEVAEHETLNE-EK---------QAVAEAEKRLAEA------	271
+colicin-FY      DIQKTEAEYK--------------------EKQGGL------------------------	140
+colicin-Ia      ALTRAEQQLTQ------QKNTPDGKTIVSPEKFPGRSSTNHSIVVSGDPRFAGTIKITTS	323
+colicin-Ib      ALTRAEQQLTQ------QKNTPDGKTIVSPEKFPGRSSTNHSIVVSGDPRFAGTIKITTS	323
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      GVPMSVPVVDA-------KPT----------ERPGVFT-----------------ASIPG	227
+colicin-N       GDGASAKVGEI-------TITPD-------NSKPGRYI-----------------SSNPE	115
+colicin-Y       GMSASQKDVDA-------A---N------------RII-----------------NETV-	302
+colicin-B       GIPMTVPVVDA-------VPVPD-------RSRPGTNI-----------------KDVYS	215
+colicin-D       GIPMTVPVVDA-------VPVPD-------RSRPGTNI-----------------KDVYS	215
+                                                                            
+
+colicin-M       ------------------------------------------------------------	34
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ----------RNELAQASAKYKELDELVKKLSPRANDPLQNRPF-FEA-TRRRVGAGKI-	283
+colicin-K       ----------KAELAKAESDVQSKQATVSRV----AGELENAQKSVDVKVTGFPGWRDV-	316
+colicin-FY      ----SEVDKAKYQLVLSKLQLQ--KQ----NAKILSEE-----A---KKRRVHAEWEQI-	181
+colicin-Ia      A-VIDNRANLNYLLSHSGLDYK--RNILNDRNPVVTEDVEGDKK---IYNAEVAEWDKL-	376
+colicin-Ib      A-VIDNRANLNYLLTHSGLDYK--RNILNDRNPVVTEDVEGDKK---IYNAEVAEWDKL-	376
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      APVLN------I----SVNDST----PAVQTL--SPGVTNNTDK-----DVRPAGFTQGG	266
+colicin-N       YSLLAKLID---------------------------AESIKGTE-----VYTFHT----R	139
+colicin-Y       ----KAINDVNL----KIAEKKKQQVPLLSLMKQKQKEVEELKK-----VFKNHSYHRIR	349
+colicin-B       APVSPNLPDLVL----SVG---QMNTPVRSNPEIQEDGVISETG-----NYVEAGYTMSS	263
+colicin-D       APVSPNLPDLVL----SVG---QMNTPVLSNPEIQEEGVIAETG-----NYVEAGYTMSS	263
+                                                                            
+
+colicin-M       ----------------PLLVQVVYSFFQSPNMCLQALTQ---------------------	57
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ----------------------------------REEKQKQVTASE-------TRINRI-	301
+colicin-K       ----------------------------------QKKLQRQLEAK---------------	327
+colicin-FY      ----------------------------------NDENVLNARDRPSAEWRQQREINSKK	207
+colicin-Ia      ----------------------------------RQRL-LDARNKITSA---ESAVNSAR	398
+colicin-Ib      ----------------------------------RQRL-LDARNKITSA---ESAINSAR	398
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      NTRDAVIRFPKDSGHNAVYVSVSDVLSPDQ---VKQRQD--EENRRQQEWDATHPVEAAE	321
+colicin-N       KGQYVKVTVPD-SNIDKMRVDYVNWKGPKYNNKLVK------------------------	174
+colicin-Y       ---DAQRAYDDARNKNDLLVSDINALQAQV-SGLTARKQ--QAEKNKAAAEKAKADAKAK	403
+colicin-B       NNHDVIVRFPEGSGVSPLYISAVEILDS---NSLSQR-Q--E------------------	299
+colicin-D       NNHDVIVRFPEGSDVSPLYISTVEILDS---NGLSQR-Q--E------------------	299
+                                                                            
+
+colicin-M       --------------------------LEDYIK-------------KHG------------	66
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      -------------NA-------DITQIQKAI-SQVSNNRNAGIARVHEAEENL-KKAQNN	339
+colicin-K       -------------QA-------EYSAVENEL-KNAVSFRDGKAAEVKEAEQKL-KEAQDA	365
+colicin-FY      S-L-AKLAEERAVQEQVELIRQGLAQLEKNILANKENVKRW----TEE------MNKNKE	255
+colicin-Ia      NNLSARTNEQKHAND-----------ALNALLKEKENIRNQ----LSGINQKIAEEKRKQ	443
+colicin-Ib      NNVSARTNEQKHAND-----------ALNALLKEKENIRSQ----LADINQKIAEEKRKR	443
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      RN------------------------YERARAELNQ--ANEDVARN--------QERQAK	347
+colicin-N       ------------------------------------RFVSQFLLFR--------KEEKEK	190
+colicin-Y       AE------------------------AEKAAAEAKAKAEAEKARKE--------AEAKAN	431
+colicin-B       -------------------------------AENNAK----DDFRV--------KKEQEN	316
+colicin-D       -------------------------------AENKAK----DDFRV--------KKEEAV	316
+                                                                            
+
+colicin-M       -------------------------ASNPLTLQIISTN----------------------	79
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      LLNSQIKDAVDATVSFYQTLTEKYGEKYSKMAQELADK---SKGKKIGNVNEALAAFEKY	396
+colicin-K       LEKSQIKDAVDTMVGFYQYITEQYGEKYAKIAQDLAEK---SKGKKIQGVDEALAAFEKY	422
+colicin-FY      KEENEVKDALKFTADFYKTVTEKYGEKSSKIAQELADA---AKGKQIRSVDEALKAFDKY	312
+colicin-Ia      DELKATKDAINFTTEFLKSVSEKYGAKAEQLAREMAGQ---AKGKKIRNVEEALKTYEKY	500
+colicin-Ib      DEINMVKDAIKLTSDFYRTIYDEFGKQASELAKELASV---SQGKQIKSVDDALNAFDKF	500
+colicin-V       ------------------------------------------------------------	36
+colicin-E9      AVQVYNSRKSELD------------AANKTLADAI-AEIKQFNRF----AHDPMAGGHRM	390
+colicin-N       NEKEALLKASELVSGMGDKLGEYLGVKYKNVAKEVANDIKNFHGRNIRSYNEAMASLNKV	250
+colicin-Y       DEKAVLTKASEIIISVGDKVGEYLGDKYKALSREIAGNIKNFQGKTIRSYDEAIASVNKL	491
+colicin-B       DEKTVLTKTSEVIISVGDKVGEYLGDKYKALSREIAENINNFQGKTIRSYDDAMSSINKL	376
+colicin-D       ARAEAEKAKAELFSKAGVNQP----PVYTQEMMERANSVMNEQGALVL--NNTASSVQLA	370
+                                                                            
+
+colicin-M       ---IG-YFCNADRNLVLHPGI---------------SVYDAYHFAKPAPSQYDYRSMNM-	119
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      KDVLNKKFSKADRDAIFNALASVKYDDWAKHL---DQFAKYLKITGHVSFGYDVVSDIL-	452
+colicin-K       KNVLDKKFSKVDRDAIFNALESVNYDELSKNL---TKISKSLKITSRVSFLYDVGSDFK-	478
+colicin-FY      KDVLNKKFSVKDREAIAKALESVDRELMAKNL---AKFSKAFNYVGKTIDRYDTLKEIQ-	368
+colicin-Ia      RADINKKINAKDRAAIAAALESVKLSDISSNL---NRFSRGLGYAGKFTSLADWITEFG-	556
+colicin-Ib      RNNLNKKYNIQDRMAISKALEAINQVHMAENF---KLFSKAFGFTGKVIERYDVAVELQ-	556
+colicin-V       ---------------ILAIWLAFNYSQN--------------------------------	49
+colicin-E9      WQMAGLKAQRAQ-------------TDVNNKQAAFDAAAKEKSDADAALSAAQERRKQKE	437
+colicin-N       LANPKMKVNKSDKDAIVNAWKQVNAKDMANKI---GNLGKAFKVADLAIKVEKIREKSIE	307
+colicin-Y       MANPDLKINAADRDVIVNAWKAFDAEDMGNKF---AALGKTFKAADYVMKANNVREKSIE	548
+colicin-B       MANPSLKINATDKEAIVNAWKAFNAEDMGNKF---AALGKTFKAADYAIKANNIREKSIE	433
+colicin-D       MTG-------------TGVWTAAG--DI---A---GNISKFFSN-------------ALE	396
+                                                                            
+
+colicin-M       -------------------KQMSGNVTTPIVAL---AHYLWGNGAERS------------	145
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ------------------KIKDTGDWKPLFLTL---EKKAADAGVSYVVALLFSLLAGTT	491
+colicin-K       ------------------NAIETGNWRPLFVTL---EKSAVDVGVAKIVALMFSFIVGVP	517
+colicin-FY      ------------------KALETNNWRPVFVQL---ESLAVGRAAGAITAFAFSIIIGAP	407
+colicin-Ia      ------------------KAVRTENWRPLFVKT---ETIIAGNAATALVALVFSILTGSA	595
+colicin-Ib      ------------------KAVKTDNWRPFFVKL---ESLAAGRAASAVTAWAFSVMLGTP	595
+colicin-V       -----------------------------------LDPWLQKFIQDKTARKI-----TAF	69
+colicin-E9      NKEKDAKDKLDKESKRNKPGKATGKG------KPVGDKWLDDAGKDSGAPIP-DRIADKL	490
+colicin-N       -------------------GYNTGNWGPLLLEV---ESWIIGGVVAGVAISLFGAVLSFL	345
+colicin-Y       -------------------GYQTGNWGPLMREV---ESWVVSGIASAVALAIFSATLGAY	586
+colicin-B       -------------------GYQTGNWGPLMLEV---ESWVISGMASAVALSLFSLTLGS-	470
+colicin-D       -------------------KVTIPEVSPLLMRISLGALWFHSEEAGAGSD----IVPGRN	433
+                                                                            
+
+colicin-M       ------------------------------------------------------------	145
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      -----------LGIWGIAIVT---------------------------------------	501
+colicin-K       -----------LGFWGIAIVT---------------------------------------	527
+colicin-FY      -----------LGILGVALIM---------------------------------------	417
+colicin-Ia      -----------LGIIGYGLLM---------------------------------------	605
+colicin-Ib      -----------VGILGFAIIM---------------------------------------	605
+colicin-V       IMILF----------GTLIAGGIVN---ALLGFILKSTGLS-------------------	97
+colicin-E9      RDKEFKSF---DDFRKAVWE----------------------------------------	507
+colicin-N       --PISGLAVTALGVIGIMTISY--------------------------------------	365
+colicin-Y       L-LAVGASAAVVGIIGIIIA----------------------------------------	605
+colicin-B       ALIAFGLSATVVGFVGVVIA----------------------------------------	490
+colicin-D       LEAMFSLSAQMLAGQGVVIEPGATSVNLPVRGQLINSNGQLALDLLKTGNESIPAAVPVL	493
+                                                                            
+
+colicin-M       -------------VNIANIGLKISPMKINQIKDIIKSGVVGT-FPVSTKFTHATGDYN--	189
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ----------------GILCSYIDKNKLNTINEVLGI-----------------------	522
+colicin-K       ----------------GIVSSYIGDDELSKLNELLGI-----------------------	548
+colicin-FY      ----------------ALVSVFVDDRFIEKINEMVGV-----------------------	438
+colicin-Ia      ----------------AVTGALIDESLVEKANKFWGI-----------------------	626
+colicin-Ib      ----------------AAVSALVNDKFIEQVNKLIGI-----------------------	626
+colicin-V       --------GTDRIL--GMGFGFVRGVFIVALVMVVIK-----------------------	124
+colicin-E9      ----------------EVSKDPELSKNLNPSNKSSVSKGY--------------------	531
+colicin-N       ------------------LSSFIDANRVSNINNIISSVIR--------------------	387
+colicin-Y       ----------------SFIGALIDDKFIDRLNNEIIRPAY--------------------	629
+colicin-B       ----------------GAIGAFIDDKFVDELNHKIIK-----------------------	511
+colicin-D       NAVRDTATGLDKITLPAVVGAPSRTILVNPVPQPSVPTDTGNHQPVPVTPVHTGTEVKSV	553
+                                                                            
+
+colicin-M       ---VIT---GAYLGNIT----LK-----T--EGTL-----TISANGSWTYNGVVRSYDDK	227
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ------------------------------------------------------------	522
+colicin-K       ------------------------------------------------------------	548
+colicin-FY      ------------------------------------------------------------	438
+colicin-Ia      ------------------------------------------------------------	626
+colicin-Ib      ------------------------------------------------------------	626
+colicin-V       ---MTSLPYAEYAGNSKLYAKFDPVVNWLSGLMPSLIDRV----KGLETPDAPENLMQMT	177
+colicin-E9      -------------------SPFTPKNQQVGGRKVYELHHDKPISQGGEVY-DMD------	565
+colicin-N       ------------------------------------------------------------	387
+colicin-Y       ------------------------------------------------------------	629
+colicin-B       ------------------------------------------------------------	511
+colicin-D       EMPVTTITPVSDVGGLRDFIYWRPDAAGTGVEAVYVMLND-PLDSGRFSRKQLDKKYKHA	612
+                                                                            
+
+colicin-M       YDFNASTHR----------GIIGESLTRLGAMFSGK-----EYQI-LLPGE---IHIKES	268
+Colicin-E5      ------------------------------------------------------------	116
+colicin-E1      ------------------------------------------------------------	522
+colicin-K       ------------------------------------------------------------	548
+colicin-FY      ------------------------------------------------------------	438
+colicin-Ia      ------------------------------------------------------------	626
+colicin-Ib      ------------------------------------------------------------	626
+colicin-V       GDFELSEA----------------------------------------------------	185
+colicin-E9      -NIRVTTP----------KRHIDIHR--------GK------------------------	582
+colicin-N       ------------------------------------------------------------	387
+colicin-Y       ------------------------------------------------------------	629
+colicin-B       ------------------------------------------------------------	511
+colicin-D       GDFGISDTKKNRETLTKFRDAIEEHLSDKDTVEKGTYRREKGSKVYFNPNTMNVVIIKSN	672
+                                                                            
+
+colicin-M       GKR----------------------	271
+Colicin-E5      -------------------------	116
+colicin-E1      -------------------------	522
+colicin-K       -------------------------	548
+colicin-FY      -------------------------	438
+colicin-Ia      -------------------------	626
+colicin-Ib      -------------------------	626
+colicin-V       -------------------------	185
+colicin-E9      -------------------------	582
+colicin-N       -------------------------	387
+colicin-Y       -------------------------	629
+colicin-B       -------------------------	511
+colicin-D       GEFLSGWKINPDADNGRIYLETGEL	697
+                                         

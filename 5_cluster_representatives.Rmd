@@ -1,0 +1,32 @@
+Step 5. Use cluster representative sequences
+==============================================
+
+**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+    line-height: 120%;
+}
+</style>
+
+
+load libraries 
+
+```{r}
+library(tidyverse)
+library(ggtree)
+```
+
+plot the tree of the representative sequences 
+
+```{r, fig.width=9, fig.height=7}
+# Read the data
+tree <- read.tree("cluster_rep/colicin.tree")
+
+ggtree(tree) + geom_tiplab() + ggplot2::xlim(0, 0.51) 
+```
+
