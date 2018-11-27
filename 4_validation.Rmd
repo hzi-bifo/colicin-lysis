@@ -1,0 +1,131 @@
+Step 4. validation of HMM matches
+==============================================
+
+**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+    line-height: 120%;
+}
+</style>
+
+
+```{r}
+rm(list = ls())
+library(DT)
+```
+
+To check whether the HMM matches are TP, we can check the ORF annotation of the HMM matching region. We use a grep on the terms "lys" and "hypotetical". It seems that most are annotated correctly. 
+
+```{r}
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
+
+print(paste0(round(length(grep("lys", lysis$description))/nrow(lysis)*100), "%", " annotated as lysis")) 
+print(paste0(round(length(grep("hypothetical", lysis$description))/nrow(lysis)*100), "%", " annotated as hypothetical")) 
+```
+
+Now we can check what annotation have the remaining matches.
+
+```{r}
+set_a <- grep("hypothetical", lysis$description)
+set_b <- grep("lys", lysis$description)
+remaining <- lysis[-c(set_a, set_b),]
+occ <- as.data.frame(table(remaining$description))
+occ <- occ[order(-occ$Freq),]
+datatable(occ, options = list(pageLength = 5))
+```
+
+We can do the same for the Colicin UniRef hits. It seems that in general colicin are annotated correctly (86% have OTU annotation that match to _colicin_) and 11% are annotated as _hypothetical_. 
+
+```{r}
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
+colicin[which(colicin$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+
+annot <- read.table("table1.csv", header=T, sep=";")
+annot_c <- read.table("table3.csv", header=T, sep=";")
+annot_both <- rbind(annot, annot_c)
+colicin$description2 <- NULL
+colicin$description2 <- annot_both[match(colicin$query_name, annot_both$ID),]$description
+colicin$group <- annot_both[match(colicin$query_name, annot_both$ID),]$group
+
+print(paste0(round(length(grep("colicin", colicin$description))/nrow(colicin)*100), "%", " annotated as colicin")) 
+print(paste0(round(length(grep("hypothetical", colicin$description))/nrow(colicin)*100), "%", " annotated as hypothetical")) 
+
+set_a <- grep("hypothetical", colicin$description)
+set_b <- grep("colicin", colicin$description)
+
+remaining <- colicin[-c(set_a, set_b),]
+occ <- as.data.frame(table(remaining$description))
+occ <- occ[order(-occ$Freq),]
+
+datatable(occ, options = list(pageLength = 5))
+```
+
+Now we can check how specif are the colicin types.
+
+```{r}
+colicin$dummy <- 1
+agg <- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)
+```
+
+Now we can spot check by hand the most occuring ORF annotations for Colicin clusters. We see here that some seems to be specific (e.g. Colicin V) while other are non specific and show matches to Colicin E and B for example.
+```{r}
+query <- "Cluster: Colicin-B"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin-E1"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin V"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin-N"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin-D"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin-Ia"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+```{r}
+query <- "Cluster: Colicin-K"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+datatable(agg_subset, options = list(pageLength = 5))
+```
+
+## Sessioninfo
+
+```{r}
+sessionInfo()
+```
+
