@@ -16,7 +16,7 @@ h1 {
 
 load libraries 
 
-```{r}
+```{r, eval=F}
 library(tidyverse)
 library(ggtree)
 ```
@@ -24,9 +24,26 @@ library(ggtree)
 plot the tree of the representative sequences 
 
 ```{r, fig.width=9, fig.height=7}
-# Read the data
 tree <- read.tree("cluster_rep/colicin.tree")
-
 ggtree(tree) + geom_tiplab() + ggplot2::xlim(0, 0.51) 
 ```
 
+we can process the downloaded genomes in the FASTA format using [diamond](https://github.com/bbuchfink/diamond) blastp. After installing diamond to the `tools` folder we can create a database using
+
+```{bash, eval=F}
+tools/diamond makedb --in ../cluster_rep/colicin.fasta -d ../diamond_colicin_database
+```
+
+to screen one fasta file 
+
+```{bash, eval=F}
+tools/diamond blastp -d diamond_colicin_database.dmnd -q genomes/faa/test.faa -o genomes/faa/test_matches.m8
+```
+
+to screen all fasta files we can run
+ubject-cover
+```{bash, eval=F}
+parallel 'tools/diamond blastp -d diamond_colicin_database.dmnd --more-sensitive --id 55 -p 1 -q {} -o {.}.matches.m8 {}' ::: genomes/faa/*.faa
+```
+
+and we can submit such job on the cluster using `qsub -pe smp 4 -l h_vmem=4G diamond.sh` 

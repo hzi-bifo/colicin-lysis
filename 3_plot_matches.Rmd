@@ -1,7 +1,7 @@
 Step 2. Plot HMM occurences
 ==============================================
 
-**Author**: Philipp Muench (pmu15@helmholtz-hzi.de)
+**Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
 
 **Date**: `r Sys.Date()`
 
@@ -27,11 +27,27 @@ library(gplots)
 
 In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
 
+just take the best match on the colicin
 ```{r}
-lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
-colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
+colicin <- colicin[which(colicin$domain_name != "WP_000262102.1"),]
+#sample <- "GCF_000962315.1_ASM96231v1_protein"
+colicin_best <- NULL
+# iterate over every genome
+for (sample in unique(colicin$sample)) {
+  subset <- colicin[which(colicin$sample == sample),]
+ # print(paste("sample: ", sample, " found matches: " , nrow(subset)))
+  hit <- which.min(subset$sequence_evalue)
+  colicin_best <- rbind(colicin_best, subset[hit,])
+}
+colicin <- colicin_best
+```
+
+```{r}
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
+#colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header=T, stringsAsFactors = F)
 merged_all <- rbind(lysis, colicin)
-acc_threshold <- 0.90
+acc_threshold <- 0.70
 merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
 ```
 
@@ -48,13 +64,13 @@ get the data in the wide format (pfam vs. genomes) from the long format (each ma
 
 ```{r}
 lysis$dummy <- 1
-lysis_agg <- aggregate(dummy ~ sample, data=lysis, FUN=sum)
+lysis_agg <- aggregate(dummy ~ sample, data = lysis, FUN = sum)
 colicin$dummy <- 1
-colicin_agg <- aggregate(dummy ~ sample, data=colicin, FUN=sum)
-merged <- merge(colicin_agg, lysis_agg, by="sample")
+colicin_agg <- aggregate(dummy ~ sample, data=colicin, FUN = sum)
+merged <- merge(colicin_agg, lysis_agg, by = "sample")
 colnames(merged) <- c("sample", "colicin", "lysin")
 merged_all$dummy <- 1
-wide_data <- aggregate(dummy ~ sample + query_name, data=merged_all, FUN=sum)
+wide_data <- aggregate(dummy ~ sample + query_name, data = merged_all, FUN = sum)
 wide_data <- spread(wide_data, query_name, dummy)
 wide_data[is.na(wide_data)] <- 0
 rownames(wide_data) <- wide_data$sample
@@ -87,11 +103,11 @@ df_percent <- df
 df_percent$dummy <- df_percent$dummy / 9499
 
 p <- ggplot(df_percent, aes(x=reorder(description, dummy) , y=dummy, fill=text)) 
-p <- p + coord_flip() + facet_grid(group~., space = "free", scale="free")
+p <- p + coord_flip() + facet_grid(group ~ ., space = "free", scale="free")
 p <- p + geom_bar(stat="identity") + theme_classic() 
 p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
 p <- p + scale_y_continuous(labels = scales::percent)
-p <- p + labs(x="", y="fraction of genomes", fill="number of HMM matches")
+p <- p + labs(x = "", y = "fraction of genomes", fill = "number of HMM matches")
 p
 ```
 
@@ -100,7 +116,7 @@ wide_data.m <- melt(wide_data)
 wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
 wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
 
-p <- ggplot(wide_data.m, aes(value, fill=group)) + geom_histogram(binwidth=1, color="black") + facet_wrap(group~ description, ncol=5)
+p <- ggplot(wide_data.m, aes(value, fill=group)) + geom_histogram(binwidth = 1, color = "black") + facet_wrap(group~ description, ncol = 5)
 p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes)")
 p <- p + theme(strip.text.x = element_text(size = 7))
 p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
@@ -113,15 +129,52 @@ plotting the number of occurence per genome in a heatmap.
 ```{r, fig.width=12, fig.height=12}
 wide_data$sample <- NULL
 colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
-color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n=599))
+color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n = 599))
 heatmap.2(data.matrix(wide_data),
-	density.info="none",
-	trace="none",
+	density.info = "none",
+	trace = "none",
 	labRow = FALSE,
 	margins = c(22, 5),
-	notecol="black",
+	notecol = "black",
 	col = color.palette)
 ```
+
+```{r}
+annotation <- read.table("ncbi_list.csv", sep = ",", header = T)
+# the name is the folder on the RefSeq.FTP column
+annotation$genome <- paste0(basename(as.character(annotation$RefSeq.FTP)), "_protein")
+
+wide_data$genome <- rownames(wide_data)
+df_m <- melt(wide_data, value.names = sample)
+df_m$taxa <- annotation[match(df_m$genome, annotation$genome),]$Organism.Name
+
+# only use some organism names 
+df_m <- df_m[which(df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhimurium" |
+                   df_m$taxa == "Salmonella enterica subsp. enterica serovar Enteritidis" |
+                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Newport" |
+                    df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhi" |
+                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Derby"),]
+
+
+library(stringr)
+df_m$taxa <- word(as.character(df_m$taxa),-1)
+df_m$text <- ""
+df_m[which(df_m$value == 0),]$text <- "a 0"
+df_m[which(df_m$value == 1),]$text <- "b 1"
+df_m[which(df_m$value > 1),]$text <- "c 2-5"
+df_m[which(df_m$value > 5),]$text <- "d >5"
+df_m$dummy <- 1
+df <- aggregate(dummy ~ variable + text + taxa, data=df_m, FUN=sum)
+
+
+p <- ggplot(df, aes(x=reorder(variable, dummy) , y=dummy, fill=text)) 
+p <- p + coord_flip() + facet_grid(. ~ taxa, scale = "free")
+p <- p + geom_bar(stat="identity") + theme_classic() + scale_y_log10()
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + labs(x = "", y = "number of genomes", fill = "number of HMM matches")
+p
+```
+
 
 ## Sessioninfo
 

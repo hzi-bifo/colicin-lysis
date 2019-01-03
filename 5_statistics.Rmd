@@ -1,0 +1,215 @@
+Step 5. Hypothesis testing
+==============================================
+
+**Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+	line-height: 120%;
+}
+</style>
+
+# hypothesis
+
+1. Salmonella with prophages (lysis) habour more often colicins
+2. Salmonella with prophages (lyisis) habour more often group B colicincs
+
+# analysis 
+
+## import data and preprocessing
+
+Due to high similarity of colicin genes we only use the best hit per genome if there is any hit.
+
+```{r}
+rm(list = ls())
+library(reshape2)
+library(tidyr)
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
+colicin <- colicin[which(colicin$domain_name != "WP_000262102.1"),]
+#sample <- "GCF_000962315.1_ASM96231v1_protein"
+colicin_best <- NULL
+# iterate over every genome
+for (sample in unique(colicin$sample)) {
+  subset <- colicin[which(colicin$sample == sample),]
+ # print(paste("sample: ", sample, " found matches: " , nrow(subset)))
+  hit <- which.min(subset$sequence_evalue)
+  colicin_best <- rbind(colicin_best, subset[hit,])
+}
+colicin <- colicin_best # now this table is limited to one match per genome
+
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
+merged_all <- rbind(lysis, colicin)
+acc_threshold <- 0.70
+merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
+# rename
+merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+# reshape
+lysis$dummy <- 1
+lysis_agg <- aggregate(dummy ~ sample, data = lysis, FUN = sum)
+colicin$dummy <- 1
+colicin_agg <- aggregate(dummy ~ sample, data = colicin, FUN = sum)
+merged <- merge(colicin_agg, lysis_agg, by = "sample")
+colnames(merged) <- c("sample", "colicin", "lysin")
+merged_all$dummy <- 1
+wide_data <- aggregate(dummy ~ sample + query_name, data=merged_all, FUN = sum)
+wide_data <- spread(wide_data, query_name, dummy)
+wide_data[is.na(wide_data)] <- 0
+rownames(wide_data) <- wide_data$sample
+wide_data$sample <- NULL
+```
+
+## count occurences of lysis and colicin, not looking on grouping
+
+```{r}
+library("dplyr")
+# get annotation of lysis genes
+# drop omni-present colicin V
+wide_data <- select(wide_data, -"UniRef50_A0A0W0TIU2")
+
+lysis <- read.table("table1.csv", header = T, sep = ";")
+colicin <- read.table("table3_curated.csv", header = T, sep = ";")
+
+# locical that holds the information which genomes contain a lysis gene
+lyis_subset <- rowSums(select(wide_data, lysis$ID)) > 0
+nonlyis_subset <- rowSums(select(wide_data, lysis$ID)) == 0
+
+# subset wide_data for one that have a lysis gene
+wide_data_w_lysis <- wide_data[lyis_subset,]
+# subset again for presence of colicin
+wide_data_w_lysis_w_colicin <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin$ID)) > 0),]
+wide_data_w_lysis_wo_colicin <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin$ID)) == 0),]
+
+# subset wide_data for one that dont have a lysis gene
+wide_data_wo_lysis <- wide_data[nonlyis_subset,]
+# subset again for presence of colicin
+wide_data_wo_lysis_w_colicin <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin$ID)) > 0),]
+wide_data_wo_lysis_wo_colicin <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin$ID)) == 0),]
+
+# create matrix for testing
+contigency_table <-
+matrix(c(nrow(wide_data_w_lysis_w_colicin),
+         nrow(wide_data_wo_lysis_w_colicin),
+         nrow(wide_data_w_lysis_wo_colicin),
+         nrow(wide_data_wo_lysis_wo_colicin)),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin", "without colicin")))
+contigency_table
+```
+
+```{r, echo=F}
+print(paste0("Fraction of bacteria that have lysis (one or more lysis related Pfams): ",
+            round(100*(nrow(wide_data_w_lysis_w_colicin) + 
+                         nrow(wide_data_w_lysis_wo_colicin)) 
+                  / nrow(wide_data), digits = 2),"%"))
+print(paste0("Fraction of bacteria that dont have lysis (no lysis related Pfams): ",
+            round(100*(nrow(wide_data_wo_lysis_w_colicin) + 
+                         nrow(wide_data_wo_lysis_wo_colicin)) 
+                  / nrow(wide_data), digits = 2),"%"))
+print(paste0("Fraction of bacteria that have lysis AND a colicin gene: ",
+            round(100*(nrow(wide_data_w_lysis_w_colicin)) 
+                  / (nrow(wide_data_w_lysis_w_colicin) + 
+                       nrow(wide_data_w_lysis_wo_colicin)), digits = 2),"%"))
+print(paste0("Fraction of bacteria that dont have lysis AND a colicin gene among bacteria without lysis ",
+            round(100*(nrow(wide_data_wo_lysis_w_colicin)) 
+                  / (nrow(wide_data_wo_lysis_w_colicin) + 
+                       nrow(wide_data_wo_lysis_wo_colicin)), digits = 2),"%"))
+```
+
+```{r}
+ftest <- fisher.test(contigency_table, alternative = "greater")
+print(ftest)
+```
+
+
+```{r, echo=F}
+print(paste0("The presence of a colocin gene is significantly enriched in bacteria that have a lysis gene (", 
+             nrow(wide_data_w_lysis_w_colicin), " out of ",  nrow(wide_data_w_lysis_w_colicin) + nrow(wide_data_w_lysis_wo_colicin),
+      ") compared to bacteria without a lysis gene (",
+      nrow(wide_data_wo_lysis_w_colicin), " have a colicin gene out of ",  nrow(wide_data_wo_lysis_w_colicin) + nrow(wide_data_wo_lysis_wo_colicin),
+      ") (one-sided Fisher's exact test p-value = ", ftest$p.value,
+      ")"))
+```
+
+## stratify by colicin group
+
+```{r}
+colicin <- read.table("table3_curated.csv", header = T, sep = ";")
+colicin_a <- colicin[which(colicin$group == "A"),]
+colicin_b <- colicin[which(colicin$group == "B"),]
+
+# subset again for presence of colicin group A and B
+# subset that have lysis
+wide_data_w_lysis_w_colicin_a <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_a$ID)) > 0),]
+wide_data_w_lysis_w_colicin_b <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_b$ID)) > 0),]
+
+wide_data_w_lysis_wo_colicin_a <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_a$ID)) == 0),]
+wide_data_w_lysis_wo_colicin_b <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_b$ID)) == 0),]
+
+# subset that miss lysis
+wide_data_wo_lysis_w_colicin_a <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_a$ID)) > 0),]
+wide_data_wo_lysis_w_colicin_b <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_b$ID)) > 0),]
+
+wide_data_wo_lysis_wo_colicin_a <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_a$ID)) == 0),]
+wide_data_wo_lysis_wo_colicin_b <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_b$ID)) == 0),]
+
+# create matrix for testing
+contigency_table_colicin_b <-
+matrix(c(nrow(wide_data_w_lysis_w_colicin_b),
+         nrow(wide_data_wo_lysis_w_colicin_b),
+         nrow(wide_data_w_lysis_wo_colicin_b),
+         nrow(wide_data_wo_lysis_wo_colicin_b)),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin_b", "without colicin_b")))
+contigency_table_colicin_b
+
+
+contigency_table_colicin_a <-
+matrix(c(nrow(wide_data_w_lysis_w_colicin_a),
+         nrow(wide_data_wo_lysis_w_colicin_a),
+         nrow(wide_data_w_lysis_wo_colicin_a),
+         nrow(wide_data_wo_lysis_wo_colicin_a)),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin_a", "without colicin_a")))
+contigency_table_colicin_a
+```
+
+```{r, echo=F}
+print(paste0("Fraction of bacteria that have lysis AND a colicin B gene among bacteria taht have a lysis gene ",
+            round(100*(nrow(wide_data_w_lysis_w_colicin_b)) 
+                  / (nrow(wide_data_w_lysis_w_colicin_b) + 
+                       nrow(wide_data_w_lysis_wo_colicin_b)), digits = 2),"%"))
+print(paste0("Fraction of bacteria that dont have lysis AND a colicin B gene among bacteria without lysis ",
+            round(100*(nrow(wide_data_wo_lysis_w_colicin_b)) 
+                  / (nrow(wide_data_wo_lysis_w_colicin_b) + 
+                       nrow(wide_data_wo_lysis_wo_colicin_b)), digits = 2),"%"))
+print(paste0("Fraction of bacteria that have lysis AND a colicin A gene among bacteria taht have a lysis gene ",
+            round(100*(nrow(wide_data_w_lysis_w_colicin_a)) 
+                  / (nrow(wide_data_w_lysis_w_colicin_a) + 
+                       nrow(wide_data_w_lysis_wo_colicin_a)), digits = 2),"%"))
+print(paste0("Fraction of bacteria that dont have lysis AND a colicin A gene among bacteria without lysis ",
+            round(100*(nrow(wide_data_wo_lysis_w_colicin_a)) 
+                  / (nrow(wide_data_wo_lysis_w_colicin_a) + 
+                       nrow(wide_data_wo_lysis_wo_colicin_a)), digits = 2),"%"))
+```
+
+```{r}
+ftest_colicin_b <- fisher.test(contigency_table_colicin_b, alternative = "greater")
+print(ftest_colicin_b)
+```
+
+## Sessioninfo
+
+```{r}
+sessionInfo()
+```
+
+

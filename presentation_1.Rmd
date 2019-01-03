@@ -1,0 +1,466 @@
+---
+title: "Quantification of lysis/colicin gene families in _Salmonella_ using profile-HMM"
+author: "Philipp C. Muench"
+date: "November 29, 2018"
+classoption: "aspectratio=169"
+output:
+  beamer_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+
+## Background: Colicin expression
+
+- **Colicin:** Colicins are released into the environment to reduce competition from other bacterial strains. Virtually all colicins are carried on plasmids.
+- **Two colicin groups:** The fundamental difference between the two groups may lie in the molecular weight of the plasmid DNA.
+- **Lysis:** Colicin is only released from a producing cell by the use of the lysis protein, which results in that cell's death.  ,
+
+## Aim:
+
+- For all _Salmonella_ genomes, **quantification** of presence of colicin (and which type), lysis genes and prophages in their genome to understand their interplay.
+- **Hypothesis:** Difference in prophage abundnace of _Salmonella_ that express group A colicin compared to group B
+- **But:** Many proteins are not annotated, we miss a lot if we just perform a search on annotated ORF names only
+- **Solutoin:** Using profile-HMM instead of a blast search because it can find homologs of protein sequence
+
+## Introduction: profile-HMM
+
+A set of sequences can be aligned against each other resulting in a multiple sequence alignement (MSA)
+
+```{bash, echo=T, eval=F}
+seq1: ACA---ATG
+seq2: TCAACTATC
+seq3: ACAC--AGC
+seq4: AGA---ATC
+seq5: ACCG--ATC
+```
+
+```{r, echo=F, fig.height=2, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/small_example.fatsa")
+plot_alignment(aln, "DNA")
+```
+
+## from MSA to profile-HMM
+
+- A profile HMM is a linear state machine consisting of a sereis of nodes, each of which corresponds roughly to a position (column) in the alignment.
+- If we ignore gaps, the HMM would have one node for each column in alignment. 
+- Frequency inside each state is called **emission probability**
+
+```{r, out.width="1\\linewidth", include=TRUE, fig.align="center", fig.cap=c("HMM model with 7 states and 1 internal state"), echo=FALSE}
+knitr::include_graphics("image1_b.pdf")
+```
+
+## from MSA to profile-HMM
+
+**But** would be the following sequence part of the familiy?
+
+```{bash, echo=T, eval=F}
+new sequence: GCAATG
+```
+
+No, thus it's common to include **pseudocounts** artificially when building the model
+
+```{r, out.width="1\\linewidth", include=TRUE, fig.align="center", fig.cap=c("HMM model with 7 states and 1 internal state and pseudocounts"), echo=FALSE}
+knitr::include_graphics("image1.pdf")
+```
+
+## profile-HMM
+- HMMs to represent a family of sequences
+- each column in the alignment may be represented by a hidden state that produced that column
+
+```{bash, echo=T, eval=F}
+hmmbuild example.hmm example.fatsa
+```
+
+```{r, echo=F,fig.cap=c("full profile HMM model with deletion and insertion states")}
+suppressMessages(require("aphid"))
+hmm_colicin <- readPHMM("hmm/colicin/msa_fasta/small_example.hmm")
+plot.PHMM(hmm_colicin, just="left")
+```
+
+The transition probabilities "from" a state always add up to 1
+
+## profile-HMM
+
+- Biological sequences are typically grouped into families with a certain functionality
+- A relevant task is that of detecting whether a target sequence belongs to a certain family
+- This could be done aligning the sequence to each of the sequences from the family
+- However, pairwise alignments alone can miss cases of distantly related sequences 
+- A better way to detect such relationship would be: (i) building a model of the family (ii) testing whether the target sequence is compatible with the model
+
+## searching for gene families (lysis)
+
+These were searched using the [Pfam website](https://pfam.xfam.org/search#tabview=tab2) for involved genes from [Ry. Young, 2014](https://www.ncbi.nlm.nih.gov/pmc/articles/pmid/24585055/)
+
+```{r, echo=F}
+options(warnings=-1)
+suppressMessages(require(knitr))
+table1 <- read.table("table1.csv", header=T, sep=";")
+kable(table1, caption = "gene families for prophage lysis-genes")
+```
+
+## searching for gene families (colicin)
+
+List of colicins are taken from https://de.wikipedia.org/wiki/Colicine. UniRef terms serached via [UniProt](https://www.uniprot.org/uniref/) with the search term _uniref50 "colicin B"_
+
+```{r, echo=F, results='asis'}
+table3 <- read.table("table3.csv", header=T, sep=";")
+kable(table3, caption = "Uniref for colicin genes")
+```
+
+## MSA of Colicin V
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_A0A0W0TIU2.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-E1
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P0297.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-B
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P05819.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-M
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P05820.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-Ia
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P06716.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-N
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P08083.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-E9
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P09883.fasta")
+plot_alignment(aln, "protein")
+```
+
+
+## MSA of Colicin-D
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_P17998.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-K
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_Q47502.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin Y
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_Q9KJ98.fasta")
+plot_alignment(aln, "protein")
+```
+
+## MSA of Colicin-E5
+
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require(alignfigR))
+aln <- read_alignment("hmm/colicin/msa_fasta/UniRef50_UPI00022A9A6A.fasta")
+plot_alignment(aln, "protein")
+```
+
+## profile-HMM of Colicin V
+The profile-HMM are quite large, but we can visualize the first few states
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require("aphid"))
+hmm_colicin <- readPHMM("hmm/colicin/hmm/UniRef50_A0A0W0TIU2.hmm")
+plot.PHMM(hmm_colicin, to=7, just="left")
+```
+
+## profile-HMM  of Colicin-E5
+The profile-HMM are quite large, but we can visualize the first few states
+```{r, echo=F, fig.cap=c("visual representation of the MSA")}
+suppressMessages(require("aphid"))
+hmm_colicin <- readPHMM("hmm/colicin/hmm/UniRef50_UPI00022A9A6A.hmm")
+plot.PHMM(hmm_colicin, to=7, just="left")
+```
+
+## prepreating _Salmonella genomes_
+
+Downloaded from [NCBI genome browser](https://www.ncbi.nlm.nih.gov/genome/browse/) using the search term _"Salmonella enterica"_ resulting in 9754 entries.
+
+## Detection of prophages
+
+We use PhiSpy ([paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3439882/)) to detect prophages in genomes. 
+
+## Results: colicin/lysis occurence in _Salmonella_ genomes
+
+```{r, echo=F}
+suppressMessages(library(tidyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(reshape2))
+suppressMessages(library(gplots))
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
+merged_all <- rbind(lysis, colicin)
+acc_threshold <- 0.90
+merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
+merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+lysis$dummy <- 1
+lysis_agg <- aggregate(dummy ~ sample, data=lysis, FUN=sum)
+colicin$dummy <- 1
+colicin_agg <- aggregate(dummy ~ sample, data=colicin, FUN=sum)
+merged <- merge(colicin_agg, lysis_agg, by="sample")
+colnames(merged) <- c("sample", "colicin", "lysin")
+merged_all$dummy <- 1
+wide_data <- aggregate(dummy ~ sample + query_name, data=merged_all, FUN=sum)
+wide_data <- spread(wide_data, query_name, dummy)
+wide_data[is.na(wide_data)] <- 0
+rownames(wide_data) <- wide_data$sample
+wide_data$sample <- NULL
+wide_data$sample <- rownames(wide_data)
+df_m <- suppressMessages(melt(wide_data, value.names=sample))
+df_m$text <- ""
+df_m[which(df_m$value == 0),]$text <- "a 0"
+df_m[which(df_m$value == 1),]$text <- "b 1"
+df_m[which(df_m$value > 1),]$text <- "c 2-5"
+df_m[which(df_m$value > 5),]$text <- "d >5"
+df_m$dummy <- 1
+df <- aggregate(dummy ~ variable + text, data=df_m, FUN=sum)
+# load pfam/UniRef annotations
+annot <- read.table("table1.csv", header=T, sep=";")
+annot_c <- read.table("table3.csv", header=T, sep=";")
+annot_both <- rbind(annot, annot_c)
+df$description <- NULL
+df$description <- annot_both[match(df$variable, annot_both$ID),]$description
+df$group <- annot_both[match(df$variable, annot_both$ID),]$group
+# instead of showing the raw number on the x axis, we can show the %
+df_percent <- df
+df_percent$dummy <- df_percent$dummy / 9499
+```
+
+```{r, fig.height=5, fig.cap=c("occurence of colicin and lysis gene families")}
+p <- ggplot(df_percent, aes(x=reorder(description, dummy) , y=dummy, fill=text)) 
+p <- p + coord_flip() + facet_grid(group~., space = "free", scale="free")
+p <- p + geom_bar(stat="identity") + theme_classic() 
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + scale_y_continuous(labels = scales::percent)
+p <- p + labs(x="", y="fraction of genomes", fill="number of HMM matches")
+p
+```
+
+
+## statistics
+
+```{r}
+lysis_list <- 
+wide_data[]
+```
+
+## different way to plot
+
+```{r, fig.height=6, fig.cap=c("occurence of colicin and lysis gene families")}
+wide_data.m <- suppressMessages(melt(wide_data))
+wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
+wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
+
+p <- ggplot(wide_data.m, aes(value, fill=group)) + geom_histogram(binwidth=1, color="black") + facet_wrap(group~ description, ncol=5)
+p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes)")
+p <- p + theme(strip.text.x = element_text(size = 7))
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + scale_x_continuous(breaks=0:10)
+p
+```
+
+## number of colicin/lysis gene families found on genomes
+
+```{r, fig.width=12, fig.height=10}
+wide_data$sample <- NULL
+colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n=599))
+heatmap.2(data.matrix(wide_data),
+	density.info="none",
+	trace="none",
+	labRow = FALSE,
+	margins = c(22, 5),
+	notecol="black",
+	col = color.palette)
+```
+
+## validation of HMM matches (lysis)
+
+To check whether the HMM matches are TP, we can check the ORF annotation of the HMM matching region. We use a grep on the terms "lys" and "hypotetical". It seems that most are annotated correctly. 
+
+```{r, echo=F}
+acc_threshold <- 0.90
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
+lysis <- lysis[which(lysis$acc > acc_threshold),]
+print(paste0(round(length(grep("lys", lysis$description))/nrow(lysis)*100), "%", " annotated as lysis")) 
+print(paste0(round(length(grep("hypothetical", lysis$description))/nrow(lysis)*100), "%", " annotated as hypothetical"))
+```
+
+```{r, echo=F}
+set_a <- grep("hypothetical", lysis$description)
+set_b <- grep("lys", lysis$description)
+remaining <- lysis[-c(set_a, set_b),]
+occ <- as.data.frame(table(remaining$description))
+occ <- occ[order(-occ$Freq),]
+kable(occ[1:4,], caption = "ORF annotation of remaining matches")
+```
+
+## validation of HMM machtes (colicin)
+
+```{r, echo=F}
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
+colicin <- colicin[which(colicin$acc > acc_threshold),]
+colicin[which(colicin$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+annot <- read.table("table1.csv", header=T, sep=";")
+annot_c <- read.table("table3.csv", header=T, sep=";")
+annot_both <- rbind(annot, annot_c)
+colicin$description2 <- NULL
+colicin$description2 <- annot_both[match(colicin$query_name, annot_both$ID),]$description
+colicin$group <- annot_both[match(colicin$query_name, annot_both$ID),]$group
+print(paste0(round(length(grep("colicin", colicin$description))/nrow(colicin)*100), "%", " annotated as colicin")) 
+print(paste0(round(length(grep("hypothetical", colicin$description))/nrow(colicin)*100), "%", " annotated as hypothetical")) 
+set_a <- grep("hypothetical", colicin$description)
+set_b <- grep("colicin", colicin$description)
+remaining <- colicin[-c(set_a, set_b),]
+occ <- as.data.frame(table(remaining$description))
+occ <- occ[order(-occ$Freq),]
+kable(occ[1:4,], caption = "ORF annotation of remaining matches")
+```
+
+## looking at individual colicin gene families
+
+```{r, echo=F}
+colicin$dummy <- 1
+agg <- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)
+```
+
+### colicin-B
+
+```{r, echo=F}
+query <- "Cluster: Colicin-B"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+### Cluster: Colicin-M
+
+```{r, echo=F}
+query <- "Cluster: Colicin-M"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+## Colicin ORF hits {.tabset .tabset-fade}
+
+### Cluster: Colicin-E1
+
+```{r, echo=F}
+query <- "Cluster: Colicin-E1"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+### Cluster: Colicin-E9
+
+```{r, echo=F}
+query <- "Cluster: Colicin-E9"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+## Colicin ORF hits
+
+### Cluster: Colicin V
+
+```{r, echo=F}
+query <- "Cluster: Colicin V"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+### Cluster: Colicin-N
+
+```{r, echo=F}
+query <- "Cluster: Colicin-N"
+agg_subset <- agg[which(agg$description2 == query),]
+agg_subset <- agg_subset[order(-agg_subset$dummy),]
+agg_subset$description2 <- NULL
+colnames(agg_subset) <- c("Description","#")
+kable(agg_subset[1:4,], row.names=F)
+```
+
+## cluster representatives
+
+```{r, echo=F}
+suppressMessages(library(tidyverse))
+suppressMessages(library(ggtree))
+tree <- read.tree("cluster_rep/colicin.tree")
+ggtree(tree) + geom_tiplab() + ggplot2::xlim(0, 0.51) 
+```
+
+Run with `diamond blastn` but think there output is not different from profile-HMM analysis. 
+
+## Summary
+
+- Small subset of _Salmonella_ genomes have Colicin
+- Colicin are quite similar, not easy to differentiate colicin subtypes using gene families.
+- Colicin V is omnipresent in _Salmonella_
+
+
+## outlook
+
+- Run PhiSpy on compute cluster.
+- Test for sig. differences in number of prophages in strains that contain colicin A vs. colicin group B. 
