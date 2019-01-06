@@ -3,10 +3,10 @@ B;Cluster: Colicin-B;UniRef50_P05819
 B;Cluster: Colicin-D;UniRef50_P17998
 A;Cluster: Colicin-E1;UniRef50_P02978
 A;Cluster: Colicin-E9;UniRef50_P09883
-none;Cluster: Colicin-E5;UniRef50_UPI00022A9A6A
+A;Cluster: Colicin-E5;UniRef50_UPI00022A9A6A
 B;Cluster: Colicin FY;UniRef50_H8YUQ0
 B;Cluster: Colicin-Ia;UniRef50_P06716
-none;Cluster: Colicin-K;UniRef50_Q47502
+A;Cluster: Colicin-K;UniRef50_Q47502
 A;Cluster: Colicin-N;UniRef50_P08083
 B;Cluster: Colicin-M;UniRef50_P05820
 A;Cluster: Colicin Y;UniRef50_Q9KJ98

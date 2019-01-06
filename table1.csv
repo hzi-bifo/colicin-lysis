@@ -1,6 +1,6 @@
-Component;Gene;Abbr.;ID;Description;URL;Length(aa)
-This family includes lambda phage lysozyme and Escherichia coli endolysin;;endolysin + lysome;PF00959;Phage lysozyme;https://pfam.xfam.org/family/PF00959;109
-lysis cassettes of phages lambda and lambdoid phage 21;canonical holin;S;PF04971;Bacteriophage P21 holin S;https://pfam.xfam.org/family/PF04971;64
-lysis cassettes of phages lambda and lambdoid phage 21;canonical endolysin (R transglycosylase);R;PF11860;N-acetylmuramidase / One of the family members is the modular Gp110 endolysin found in the Salmonella phage;https://pfam.xfam.org/family/PF11860;175
-lysis cassettes of phages lambda and lambdoid phage 21;i-spanin;Rz;PF03245;Bacteriophage Rz lysis protein;https://pfam.xfam.org/family/PF03245;126
-lysis cassettes of phages lambda and lambdoid phage 21;o-spanin;Rz1;PF06085;Lipoprotein Rz1 precursor;https://pfam.xfam.org/family/PF06085;41
+group;description;ID
+lysin;endolysin + lysome;PF00959
+lysin;canonical holin;PF04971
+lysin;canonical endolysin;PF11860
+lysin;i-spanin;PF03245
+lysin;o-spanin;PF06085

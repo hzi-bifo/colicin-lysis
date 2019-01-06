@@ -1,4 +1,4 @@
-Step 3. Plot HMM occurences
+Step 2. Plot HMM occurences
 ==============================================
 
 **Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
@@ -22,109 +22,121 @@ library(tidyr)
 library(ComplexHeatmap)
 library(ggplot2)
 library(reshape2)
-library(stringr)
 library(gplots)
 ```
 
 In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
 
 just take the best match on the colicin
-
-```{r}
-acc_threshold <- .7
-```
-
-### import colicin hits
-
 ```{r}
 colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
-colicin <- colicin[which(colicin$query_name != "Colicin"),] # remove colicin V matches
-
-# iterate over every genome and extract best match
+colicin <- colicin[which(colicin$domain_name != "WP_000262102.1"),]
+#sample <- "GCF_000962315.1_ASM96231v1_protein"
 colicin_best <- NULL
+# iterate over every genome
 for (sample in unique(colicin$sample)) {
   subset <- colicin[which(colicin$sample == sample),]
+ # print(paste("sample: ", sample, " found matches: " , nrow(subset)))
   hit <- which.min(subset$sequence_evalue)
   colicin_best <- rbind(colicin_best, subset[hit,])
 }
-colicin <- colicin_best # now this table is limited to one match per genome
-colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
-colicin <- colicin[which(colicin$acc > acc_threshold),]
+colicin <- colicin_best
 ```
-
-
-### import lysis hits
 
 ```{r}
 lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
-lysis[which(lysis$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
-lysis <- lysis[which(lysis$acc > acc_threshold),]
-```
-
-### merge to one data.frame and filter by accuracy
-
-```{r}
+#colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header=T, stringsAsFactors = F)
 merged_all <- rbind(lysis, colicin)
+acc_threshold <- 0.70
 merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
 ```
 
-### reshape data to long format
+
+we replace the HMM description with the Pfam/UniRef ID for three gene families to make sure we can match later these to the `table1.csv` and `table3.csv`
 
 ```{r}
+merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
+merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+```
+
+get the data in the wide format (pfam vs. genomes) from the long format (each match to the HMM is one row)
+
+```{r}
+lysis$dummy <- 1
+lysis_agg <- aggregate(dummy ~ sample, data = lysis, FUN = sum)
+colicin$dummy <- 1
+colicin_agg <- aggregate(dummy ~ sample, data=colicin, FUN = sum)
+merged <- merge(colicin_agg, lysis_agg, by = "sample")
+colnames(merged) <- c("sample", "colicin", "lysin")
 merged_all$dummy <- 1
 wide_data <- aggregate(dummy ~ sample + query_name, data = merged_all, FUN = sum)
 wide_data <- spread(wide_data, query_name, dummy)
 wide_data[is.na(wide_data)] <- 0
 rownames(wide_data) <- wide_data$sample
 wide_data$sample <- NULL
+wide_data$sample <- rownames(wide_data)
+#chart.Correlation(heatmap_data, histogram=TRUE, pch=19)
 ```
 
-add missing genoems that dont have any hits
+We prepare the data for plotting and creating a overview figure showing how many genomes (in % of all 9499 genomes) have a match. 
 
-```{r}
-all_genomes <- read.table("ncbi_list_with_header.csv", header = T, sep = ",")
-all_genomes <- all_genomes[which(all_genomes$RefSeq.FTP != ""),]
-# add missing genomes
-# genome identifier should be something like GCF_000009505.1_ASM950v1_protein
-all_genomes$genome_id <- paste0(basename(as.character(all_genomes$RefSeq.FTP)), "_protein")
-genomes_match <- match(all_genomes$genome_id, rownames(wide_data))
-not_in_wide <- all_genomes[which(is.na(genomes_match)),]
-no_hits <- data.frame(matrix(vector(), nrow(not_in_wide), ncol(wide_data),
-                dimnames = list(c(), colnames(wide_data))),
-                stringsAsFactors = F,
-                row.names = not_in_wide$genome_id)
-no_hits[is.na(no_hits)] <- 0
-wide_data <- rbind(wide_data, no_hits)
-```
-
-filter to _Typhimurium_
-
-```{r}
-wide_data$taxa <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
-wide_data <- wide_data[grep("Typhimurium", wide_data$taxa),]
-taxa <- wide_data$taxa
-wide_data$taxa <- NULL
-```
-
-```{r}
+```{r, fig.width=12}
+df_m <- melt(wide_data, value.names=sample)
+df_m$text <- ""
+df_m[which(df_m$value == 0),]$text <- "a 0"
+df_m[which(df_m$value == 1),]$text <- "b 1"
+df_m[which(df_m$value > 1),]$text <- "c 2-5"
+df_m[which(df_m$value > 5),]$text <- "d >5"
+df_m$dummy <- 1
+df <- aggregate(dummy ~ variable + text, data=df_m, FUN=sum)
 # load pfam/UniRef annotations
 annot <- read.table("table1.csv", header=T, sep=";")
-annot_c <- read.table("table3_curated.csv", header=T, sep=";")
+annot_c <- read.table("table3.csv", header=T, sep=";")
 annot_both <- rbind(annot, annot_c)
-```
+df$description <- NULL
+df$description <- annot_both[match(df$variable, annot_both$ID),]$description
+df$group <- annot_both[match(df$variable, annot_both$ID),]$group
 
+# instead of showing the raw number on the x axis, we can show the %
+df_percent <- df
+df_percent$dummy <- df_percent$dummy / 9499
+
+p <- ggplot(df_percent, aes(x=reorder(description, dummy) , y=dummy, fill=text)) 
+p <- p + coord_flip() + facet_grid(group ~ ., space = "free", scale="free")
+p <- p + geom_bar(stat="identity") + theme_classic() 
+p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
+p <- p + scale_y_continuous(labels = scales::percent)
+p <- p + labs(x = "", y = "fraction of genomes", fill = "number of HMM matches")
+p
+```
 
 ```{r, fig.width=12}
 wide_data.m <- melt(wide_data)
 wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
 wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
 
-p <- ggplot(wide_data.m, aes(value, fill = group)) + geom_histogram(binwidth = 1, color = "black") + facet_wrap(group~ description, ncol = 5)
-p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes) (Typhimurium)")
+p <- ggplot(wide_data.m, aes(value, fill=group)) + geom_histogram(binwidth = 1, color = "black") + facet_wrap(group~ description, ncol = 5)
+p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes)")
 p <- p + theme(strip.text.x = element_text(size = 7))
 p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
 p <- p + scale_x_continuous(breaks=0:10)
 p
+```
+
+plotting the number of occurence per genome in a heatmap. 
+
+```{r, fig.width=12, fig.height=12}
+wide_data$sample <- NULL
+colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+color.palette  <- c("#F8F8F8", colorRampPalette(c("yellow", "orange", "red"))(n = 599))
+heatmap.2(data.matrix(wide_data),
+	density.info = "none",
+	trace = "none",
+	labRow = FALSE,
+	margins = c(22, 5),
+	notecol = "black",
+	col = color.palette)
 ```
 
 ```{r}
@@ -157,11 +169,12 @@ df <- aggregate(dummy ~ variable + text + taxa, data=df_m, FUN=sum)
 
 p <- ggplot(df, aes(x=reorder(variable, dummy) , y=dummy, fill=text)) 
 p <- p + coord_flip() + facet_grid(. ~ taxa, scale = "free")
-p <- p + geom_bar(stat="identity") + theme_classic()
+p <- p + geom_bar(stat="identity") + theme_classic() + scale_y_log10()
 p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
 p <- p + labs(x = "", y = "number of genomes", fill = "number of HMM matches")
 p
 ```
+
 
 ## Sessioninfo
 

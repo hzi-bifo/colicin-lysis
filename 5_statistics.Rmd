@@ -20,44 +20,59 @@ h1 {
 
 # analysis 
 
+```{r}
+rm(list = ls())
+library(reshape2)
+library(tidyr)
+library("dplyr")
+```
+
 ## import data and preprocessing
 
 Due to high similarity of colicin genes we only use the best hit per genome if there is any hit.
 
 ```{r}
-rm(list = ls())
-library(reshape2)
-library(tidyr)
+acc_threshold <- .7
+```
+
+### import colicin hits
+
+```{r}
 colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
-colicin <- colicin[which(colicin$domain_name != "WP_000262102.1"),]
-#sample <- "GCF_000962315.1_ASM96231v1_protein"
+colicin <- colicin[which(colicin$query_name != "Colicin"),] # remove colicin V matches
+
+# iterate over every genome and extract best match
 colicin_best <- NULL
-# iterate over every genome
 for (sample in unique(colicin$sample)) {
   subset <- colicin[which(colicin$sample == sample),]
- # print(paste("sample: ", sample, " found matches: " , nrow(subset)))
   hit <- which.min(subset$sequence_evalue)
   colicin_best <- rbind(colicin_best, subset[hit,])
 }
 colicin <- colicin_best # now this table is limited to one match per genome
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+colicin <- colicin[which(colicin$acc > acc_threshold),]
+```
 
+### import lysis hits
+
+```{r}
 lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
+lysis[which(lysis$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+lysis <- lysis[which(lysis$acc > acc_threshold),]
+```
+
+### merge to one data.frame and filter by accuracy
+
+```{r}
 merged_all <- rbind(lysis, colicin)
-acc_threshold <- 0.70
 merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
-# rename
-merged_all[which(merged_all$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
-merged_all[which(merged_all$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
-merged_all[which(merged_all$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
-# reshape
-lysis$dummy <- 1
-lysis_agg <- aggregate(dummy ~ sample, data = lysis, FUN = sum)
-colicin$dummy <- 1
-colicin_agg <- aggregate(dummy ~ sample, data = colicin, FUN = sum)
-merged <- merge(colicin_agg, lysis_agg, by = "sample")
-colnames(merged) <- c("sample", "colicin", "lysin")
+```
+
+### reshape data to long format
+
+```{r}
 merged_all$dummy <- 1
-wide_data <- aggregate(dummy ~ sample + query_name, data=merged_all, FUN = sum)
+wide_data <- aggregate(dummy ~ sample + query_name, data = merged_all, FUN = sum)
 wide_data <- spread(wide_data, query_name, dummy)
 wide_data[is.na(wide_data)] <- 0
 rownames(wide_data) <- wide_data$sample
@@ -66,30 +81,54 @@ wide_data$sample <- NULL
 
 ## count occurences of lysis and colicin, not looking on grouping
 
-```{r}
-library("dplyr")
-# get annotation of lysis genes
-# drop omni-present colicin V
-wide_data <- select(wide_data, -"UniRef50_A0A0W0TIU2")
+current wide_data data.frame only holds genomes that have at least one match of a gene family (n=9226 of 9499 total). For creating contigency tables we have to include 273 genomes that have been screened but don't show any match at all. 
 
+```{r}
+all_genomes <- read.table("ncbi_list_with_header.csv", header = T, sep = ",")
+all_genomes <- all_genomes[which(all_genomes$RefSeq.FTP != ""),]
+# add missing genomes
+# genome identifier should be something like GCF_000009505.1_ASM950v1_protein
+all_genomes$genome_id <- paste0(basename(as.character(all_genomes$RefSeq.FTP)), "_protein")
+genomes_match <- match(all_genomes$genome_id, rownames(wide_data))
+not_in_wide <- all_genomes[which(is.na(genomes_match)),]
+no_hits <- data.frame(matrix(vector(), nrow(not_in_wide), ncol(wide_data),
+                dimnames = list(c(), colnames(wide_data))),
+                stringsAsFactors = F,
+                row.names = not_in_wide$genome_id)
+no_hits[is.na(no_hits)] <- 0
+wide_data <- rbind(wide_data, no_hits)
+```
+
+
+```{r}
+# read in annotation tables
 lysis <- read.table("table1.csv", header = T, sep = ";")
 colicin <- read.table("table3_curated.csv", header = T, sep = ";")
+
+
+
+subset_lysis <- rowSums(select(wide_data, starts_with("P"))) > 0
+subset_colicin <- rowSums(select(wide_data, starts_with("UniRef50"))) > 0
+
+print(paste("number of genomes with lysis matches", length(which(subset_lysis))))
+print(paste("number of genomes without lysis matches", length(which(!subset_lysis))))
+
+print(paste("number of genomes with colicin matches", length(which(subset_colicin))))
+print(paste("number of genomes without colicin matches", length(which(!subset_colicin))))
 
 # locical that holds the information which genomes contain a lysis gene
 lyis_subset <- rowSums(select(wide_data, lysis$ID)) > 0
 nonlyis_subset <- rowSums(select(wide_data, lysis$ID)) == 0
 
-# subset wide_data for one that have a lysis gene
+# subset wide_data for one that have/not have a lysis gene
 wide_data_w_lysis <- wide_data[lyis_subset,]
-# subset again for presence of colicin
-wide_data_w_lysis_w_colicin <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin$ID)) > 0),]
-wide_data_w_lysis_wo_colicin <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin$ID)) == 0),]
-
-# subset wide_data for one that dont have a lysis gene
 wide_data_wo_lysis <- wide_data[nonlyis_subset,]
-# subset again for presence of colicin
-wide_data_wo_lysis_w_colicin <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin$ID)) > 0),]
-wide_data_wo_lysis_wo_colicin <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin$ID)) == 0),]
+
+# subset for presence of colicin
+wide_data_w_lysis_w_colicin <-  wide_data[which(subset_lysis & subset_colicin),]
+wide_data_w_lysis_wo_colicin <- wide_data[which(subset_lysis & !subset_colicin),]
+wide_data_wo_lysis_w_colicin <- wide_data[which(!subset_lysis & subset_colicin),]
+wide_data_wo_lysis_wo_colicin <- wide_data[which(!subset_lysis & !subset_colicin),]
 
 # create matrix for testing
 contigency_table <-
@@ -146,18 +185,31 @@ colicin_b <- colicin[which(colicin$group == "B"),]
 
 # subset again for presence of colicin group A and B
 # subset that have lysis
-wide_data_w_lysis_w_colicin_a <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_a$ID)) > 0),]
-wide_data_w_lysis_w_colicin_b <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_b$ID)) > 0),]
 
-wide_data_w_lysis_wo_colicin_a <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_a$ID)) == 0),]
-wide_data_w_lysis_wo_colicin_b <- wide_data_w_lysis[which(rowSums(select(wide_data_w_lysis, colicin_b$ID)) == 0),]
+subset_lysis <- rowSums(select(wide_data, starts_with("P"))) > 0
 
-# subset that miss lysis
-wide_data_wo_lysis_w_colicin_a <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_a$ID)) > 0),]
-wide_data_wo_lysis_w_colicin_b <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_b$ID)) > 0),]
+print(paste("number of genomes with lysis matches", length(which(subset_lysis))))
+print(paste("number of genomes without lysis matches", length(which(!subset_lysis))))
 
-wide_data_wo_lysis_wo_colicin_a <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_a$ID)) == 0),]
-wide_data_wo_lysis_wo_colicin_b <- wide_data_wo_lysis[which(rowSums(select(wide_data_wo_lysis, colicin_b$ID)) == 0),]
+subset_colicin_a <- rowSums(select(wide_data, UniRef50_P02978, UniRef50_P09883, UniRef50_Q47502, UniRef50_P08083)) > 0
+print(paste("number of genomes with colicin a matches", length(which(subset_colicin_a))))
+print(paste("number of genomes without colicin a matches", length(which(!subset_colicin_a))))
+
+subset_colicin_b <- rowSums(select(wide_data, UniRef50_P05819, UniRef50_P17998, UniRef50_P06716, UniRef50_P05820)) > 0
+print(paste("number of genomes with colicin b matches", length(which(subset_colicin_b))))
+print(paste("number of genomes without colicin b matches", length(which(!subset_colicin_b))))
+
+# subset genomes that have lysis
+wide_data_w_lysis_w_colicin_a <- wide_data[which(subset_lysis & subset_colicin_a),]
+wide_data_w_lysis_w_colicin_b <- wide_data[which(subset_lysis & subset_colicin_b),]
+wide_data_w_lysis_wo_colicin_a <- wide_data[which(subset_lysis & !subset_colicin_a),]
+wide_data_w_lysis_wo_colicin_b <- wide_data[which(subset_lysis & !subset_colicin_b),]
+
+# subset genomes that don't have lysis
+wide_data_wo_lysis_w_colicin_a <- wide_data[which(!subset_lysis & subset_colicin_a),]
+wide_data_wo_lysis_w_colicin_b <- wide_data[which(!subset_lysis & subset_colicin_b),]
+wide_data_wo_lysis_wo_colicin_a <- wide_data[which(!subset_lysis & !subset_colicin_a),]
+wide_data_wo_lysis_wo_colicin_b <- wide_data[which(!subset_lysis & !subset_colicin_b),]
 
 # create matrix for testing
 contigency_table_colicin_b <-
@@ -169,7 +221,6 @@ matrix(c(nrow(wide_data_w_lysis_w_colicin_b),
        dimnames = list(colicin = c("with lysis", "without lysis"),
                        lysis = c("with colicin_b", "without colicin_b")))
 contigency_table_colicin_b
-
 
 contigency_table_colicin_a <-
 matrix(c(nrow(wide_data_w_lysis_w_colicin_a),
@@ -204,6 +255,9 @@ print(paste0("Fraction of bacteria that dont have lysis AND a colicin A gene amo
 ```{r}
 ftest_colicin_b <- fisher.test(contigency_table_colicin_b, alternative = "greater")
 print(ftest_colicin_b)
+
+ftest_colicin_a <- fisher.test(contigency_table_colicin_a, alternative = "greater")
+print(ftest_colicin_a)
 ```
 
 ## Sessioninfo

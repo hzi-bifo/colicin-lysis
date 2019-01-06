@@ -1,4 +1,4 @@
-Step 3. Plot HMM occurences
+Step 3b. Plot HMM occurences as heatmap
 ==============================================
 
 **Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
@@ -25,6 +25,7 @@ library(reshape2)
 library(stringr)
 library(gplots)
 ```
+
 
 In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
 
@@ -79,7 +80,7 @@ rownames(wide_data) <- wide_data$sample
 wide_data$sample <- NULL
 ```
 
-add missing genoems that dont have any hits
+add missing genomes that dont have any hits
 
 ```{r}
 all_genomes <- read.table("ncbi_list_with_header.csv", header = T, sep = ",")
@@ -97,7 +98,26 @@ no_hits[is.na(no_hits)] <- 0
 wide_data <- rbind(wide_data, no_hits)
 ```
 
-filter to _Typhimurium_
+
+```{r}
+# load pfam/UniRef annotations
+annot <- read.table("table1.csv", header = T, sep = ";")
+annot_c <- read.table("table3_curated.csv", header = T, sep = ";")
+annot_both <- rbind(annot, annot_c)
+```
+
+use `complex.heatmap` to plot
+
+```{r}
+library(ComplexHeatmap)
+library(circlize)
+wide_data$sample <- NULL
+annotation_data <- data.frame(type = annot_both[match(colnames(wide_data), annot_both$ID),]$group)
+colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+```
+
+
+Show only genomes that belong to _Typhimurium_
 
 ```{r}
 wide_data$taxa <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
@@ -106,61 +126,33 @@ taxa <- wide_data$taxa
 wide_data$taxa <- NULL
 ```
 
-```{r}
-# load pfam/UniRef annotations
-annot <- read.table("table1.csv", header=T, sep=";")
-annot_c <- read.table("table3_curated.csv", header=T, sep=";")
-annot_both <- rbind(annot, annot_c)
-```
 
+```{r, fig.width=12, fig.height=12}
+ha = HeatmapAnnotation(type = as.character(annotation_data$type),
+    col = list(type = c("lysin" = "#b2df8a", "A" = "#a6cee3", "B" = "#1f78b4", "none" = "grey")))
+ha2 = HeatmapAnnotation(barplot = anno_barplot(colSums(wide_data), bar_width = 1, gp = gpar(col = NA, fill = "grey"), 
+    border = FALSE, axis = TRUE))
 
-```{r, fig.width=12}
-wide_data.m <- melt(wide_data)
-wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
-wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
+taxa_type <- rep("other", nrow(wide_data))
+taxa_data = word(taxa,-1)
+taxa_type[which(taxa_data == "DT104")] <- "DT104"
+taxa_type[which(taxa_data == "5-")] <- "5-"
 
-p <- ggplot(wide_data.m, aes(value, fill = group)) + geom_histogram(binwidth = 1, color = "black") + facet_wrap(group~ description, ncol = 5)
-p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes) (Typhimurium)")
-p <- p + theme(strip.text.x = element_text(size = 7))
-p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
-p <- p + scale_x_continuous(breaks=0:10)
-p
-```
-
-```{r}
-annotation <- read.table("ncbi_list.csv", sep = ",", header = T)
-# the name is the folder on the RefSeq.FTP column
-annotation$genome <- paste0(basename(as.character(annotation$RefSeq.FTP)), "_protein")
-
-wide_data$genome <- rownames(wide_data)
-df_m <- melt(wide_data, value.names = sample)
-df_m$taxa <- annotation[match(df_m$genome, annotation$genome),]$Organism.Name
-
-# only use some organism names 
-df_m <- df_m[which(df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhimurium" |
-                   df_m$taxa == "Salmonella enterica subsp. enterica serovar Enteritidis" |
-                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Newport" |
-                    df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhi" |
-                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Derby"),]
-
-
-library(stringr)
-df_m$taxa <- word(as.character(df_m$taxa),-1)
-df_m$text <- ""
-df_m[which(df_m$value == 0),]$text <- "a 0"
-df_m[which(df_m$value == 1),]$text <- "b 1"
-df_m[which(df_m$value > 1),]$text <- "c 2-5"
-df_m[which(df_m$value > 5),]$text <- "d >5"
-df_m$dummy <- 1
-df <- aggregate(dummy ~ variable + text + taxa, data=df_m, FUN=sum)
-
-
-p <- ggplot(df, aes(x=reorder(variable, dummy) , y=dummy, fill=text)) 
-p <- p + coord_flip() + facet_grid(. ~ taxa, scale = "free")
-p <- p + geom_bar(stat="identity") + theme_classic()
-p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
-p <- p + labs(x = "", y = "number of genomes", fill = "number of HMM matches")
-p
+Heatmap(name = "heat", top_annotation = ha2,
+        col = colorRamp2(c(0, 1, 5, 20), c("grey95", "yellow", "red", "darkred")),
+        top_annotation_height = unit(1.5, "cm"),
+        bottom_annotation_height = unit(.5, "cm"),
+        bottom_annotation = ha,
+        wide_data,
+        column_order = order(as.character(annotation_data$type)),
+        cluster_columns = FALSE,
+        cluster_rows = TRUE,
+        show_row_dend = FALSE,
+        row_names_side = "left",
+        show_row_names = FALSE) + Heatmap(taxa_type, name = "subtype", col = c("other" = "grey95", 
+                                                                            "DT104" = "#f1a340", 
+                                                                            "5-" = "#998ec3"), 
+    width = unit(0.5, "cm"))
 ```
 
 ## Sessioninfo
@@ -168,4 +160,3 @@ p
 ```{r}
 sessionInfo()
 ```
-
