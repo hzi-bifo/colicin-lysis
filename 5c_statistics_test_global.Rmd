@@ -1,4 +1,4 @@
-Step 3. Plot HMM occurences
+Step 5. Hypothesis testing
 ==============================================
 
 **Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
@@ -9,7 +9,7 @@ Step 3. Plot HMM occurences
 
 <style type="text/css">
 h1 {
-    line-height: 120%;
+	line-height: 120%;
 }
 </style>
 
@@ -23,6 +23,9 @@ library(ggplot2)
 library(reshape2)
 library(stringr)
 library(gplots)
+library(reshape2)
+library(tidyr)
+library("dplyr")
 ```
 
 In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
@@ -106,60 +109,62 @@ wide_data$taxa <- NULL
 ```
 
 ```{r}
-# load pfam/UniRef annotations
-annot <- read.table("table1.csv", header=T, sep=";")
-annot_c <- read.table("table3_curated.csv", header=T, sep=";")
-annot_both <- rbind(annot, annot_c)
+colicin <- read.table("table3_curated.csv", header = T, sep = ";")
+colicin_a <- colicin[which(colicin$group == "A"),]
+colicin_b <- colicin[which(colicin$group == "B"),]
+
+# subset again for presence of colicin group A and B
+# subset that have lysis
+
+subset_lysis <- rowSums(select(wide_data, starts_with("P"))) > 0
+
+print(paste("number of genomes with lysis matches", length(which(subset_lysis))))
+print(paste("number of genomes without lysis matches", length(which(!subset_lysis))))
+
+subset_colicin_a <- rowSums(select(wide_data, UniRef50_P02978,
+                                   UniRef50_P09883,
+                                   UniRef50_Q47502,
+                                   UniRef50_P08083)) > 0
+print(paste("number of genomes with colicin a matches", length(which(subset_colicin_a))))
+print(paste("number of genomes without colicin a matches", length(which(!subset_colicin_a))))
+
+subset_colicin_b <- rowSums(select(wide_data, 
+                                   UniRef50_P05819, 
+                                   UniRef50_P17998, 
+                                   UniRef50_P06716, 
+                                   UniRef50_P05820)) > 0
+print(paste("number of genomes with colicin b matches", length(which(subset_colicin_b))))
+print(paste("number of genomes without colicin b matches", length(which(!subset_colicin_b))))
+
+# subset genomes that have lysis
+wide_data_w_lysis_w_colicin_a <- wide_data[which(subset_lysis & subset_colicin_a),]
+wide_data_w_lysis_w_colicin_b <- wide_data[which(subset_lysis & subset_colicin_b),]
+wide_data_w_lysis_wo_colicin_a <- wide_data[which(subset_lysis & !subset_colicin_a),]
+wide_data_w_lysis_wo_colicin_b <- wide_data[which(subset_lysis & !subset_colicin_b),]
+
+# subset genomes that don't have lysis
+wide_data_wo_lysis_w_colicin_a <- wide_data[which(!subset_lysis & subset_colicin_a),]
+wide_data_wo_lysis_w_colicin_b <- wide_data[which(!subset_lysis & subset_colicin_b),]
+wide_data_wo_lysis_wo_colicin_a <- wide_data[which(!subset_lysis & !subset_colicin_a),]
+wide_data_wo_lysis_wo_colicin_b <- wide_data[which(!subset_lysis & !subset_colicin_b),]
+
+# create matrix for testing
+
+contigency_table_colicin_ab <-
+matrix(c(nrow(wide_data_w_lysis_w_colicin_b),
+         nrow(wide_data_wo_lysis_w_colicin_b),
+         nrow(wide_data_w_lysis_w_colicin_a),
+         nrow(wide_data_wo_lysis_w_colicin_a)),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin_b", "with colicin_a")))
+contigency_table_colicin_ab
 ```
 
-
-```{r, fig.width=12}
-wide_data.m <- melt(wide_data)
-wide_data.m$description <- annot_both[match(wide_data.m$variable, annot_both$ID),]$description
-wide_data.m$group <- annot_both[match(wide_data.m$variable, annot_both$ID),]$group
-
-p <- ggplot(wide_data.m, aes(value, fill = group)) + geom_histogram(binwidth = 1, color = "black") + facet_wrap(group~ description, ncol = 5)
-p <- p + theme_classic() + xlab("occurences") + ylab("frequency (number of genomes) (Typhimurium)")
-p <- p + theme(strip.text.x = element_text(size = 7))
-p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
-p <- p + scale_x_continuous(breaks=0:10)
-p
-```
 
 ```{r}
-annotation <- read.table("ncbi_list.csv", sep = ",", header = T)
-# the name is the folder on the RefSeq.FTP column
-annotation$genome <- paste0(basename(as.character(annotation$RefSeq.FTP)), "_protein")
-
-wide_data$genome <- rownames(wide_data)
-df_m <- melt(wide_data, value.names = sample)
-df_m$taxa <- annotation[match(df_m$genome, annotation$genome),]$Organism.Name
-
-# only use some organism names 
-df_m <- df_m[which(df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhimurium" |
-                   df_m$taxa == "Salmonella enterica subsp. enterica serovar Enteritidis" |
-                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Newport" |
-                    df_m$taxa == "Salmonella enterica subsp. enterica serovar Typhi" |
-                  df_m$taxa == "Salmonella enterica subsp. enterica serovar Derby"),]
-
-
-library(stringr)
-df_m$taxa <- word(as.character(df_m$taxa),-1)
-df_m$text <- ""
-df_m[which(df_m$value == 0),]$text <- "a 0"
-df_m[which(df_m$value == 1),]$text <- "b 1"
-df_m[which(df_m$value > 1),]$text <- "c 2-5"
-df_m[which(df_m$value > 5),]$text <- "d >5"
-df_m$dummy <- 1
-df <- aggregate(dummy ~ variable + text + taxa, data=df_m, FUN=sum)
-
-
-p <- ggplot(df, aes(x=reorder(variable, dummy) , y=dummy, fill=text)) 
-p <- p + coord_flip() + facet_grid(. ~ taxa, scale = "free")
-p <- p + geom_bar(stat="identity") + theme_classic()
-p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
-p <- p + labs(x = "", y = "number of genomes", fill = "number of HMM matches")
-p
+ftest <- fisher.test(contigency_table_colicin_ab)
+print(ftest)
 ```
 
 ## Sessioninfo
@@ -167,4 +172,5 @@ p
 ```{r}
 sessionInfo()
 ```
+
 

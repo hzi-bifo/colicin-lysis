@@ -1,0 +1,204 @@
+Step 5. Hypothesis testing
+==============================================
+
+**Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+	line-height: 120%;
+}
+</style>
+
+
+load libraries
+
+```{r}
+rm(list = ls())
+library(tidyr)
+library(ComplexHeatmap)
+library(ggplot2)
+library(reshape2)
+library(stringr)
+library(gplots)
+library(reshape2)
+library(tidyr)
+library("dplyr")
+```
+
+In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
+
+just take the best match on the colicin
+
+```{r}
+acc_threshold <- .7
+```
+
+### import colicin hits
+
+```{r}
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
+colicin <- colicin[which(colicin$query_name != "Colicin"),] # remove colicin V matches
+
+# iterate over every genome and extract best match
+colicin_best <- NULL
+for (sample in unique(colicin$sample)) {
+  subset <- colicin[which(colicin$sample == sample),]
+  hit <- which.min(subset$sequence_evalue)
+  colicin_best <- rbind(colicin_best, subset[hit,])
+}
+colicin <- colicin_best # now this table is limited to one match per genome
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+colicin <- colicin[which(colicin$acc > acc_threshold),]
+```
+
+
+### import lysis hits
+
+```{r}
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
+lysis[which(lysis$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+lysis <- lysis[which(lysis$acc > acc_threshold),]
+```
+
+### merge to one data.frame and filter by accuracy
+
+```{r}
+merged_all <- rbind(lysis, colicin)
+merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
+```
+
+### reshape data to long format
+
+```{r}
+merged_all$dummy <- 1
+wide_data <- aggregate(dummy ~ sample + query_name, data = merged_all, FUN = sum)
+wide_data <- spread(wide_data, query_name, dummy)
+wide_data[is.na(wide_data)] <- 0
+rownames(wide_data) <- wide_data$sample
+wide_data$sample <- NULL
+```
+
+add missing genoems that dont have any hits
+
+```{r}
+all_genomes <- read.table("ncbi_list_with_header.csv", header = T, sep = ",")
+all_genomes <- all_genomes[which(all_genomes$RefSeq.FTP != ""),]
+# add missing genomes
+# genome identifier should be something like GCF_000009505.1_ASM950v1_protein
+all_genomes$genome_id <- paste0(basename(as.character(all_genomes$RefSeq.FTP)), "_protein")
+genomes_match <- match(all_genomes$genome_id, rownames(wide_data))
+not_in_wide <- all_genomes[which(is.na(genomes_match)),]
+no_hits <- data.frame(matrix(vector(), nrow(not_in_wide), ncol(wide_data),
+                dimnames = list(c(), colnames(wide_data))),
+                stringsAsFactors = F,
+                row.names = not_in_wide$genome_id)
+no_hits[is.na(no_hits)] <- 0
+wide_data <- rbind(wide_data, no_hits)
+```
+
+filter to _Typhimurium_
+
+```{r}
+wide_data$taxa <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
+wide_data <- wide_data[grep("Typhimurium", wide_data$taxa),]
+taxa <- wide_data$taxa
+wide_data$taxa <- NULL
+```
+
+```{r}
+# load pfam/UniRef annotations
+annot <- read.table("table1.csv", header = T, sep = ";")
+annot_c <- read.table("table3_curated.csv", header = T, sep = ";")
+annot_both <- rbind(annot, annot_c)
+```
+
+Stratified by lysis family: how many genomes have group A in %, group B in % only for Typhimurium
+
+```{r}
+annotation_data <- data.frame(type = annot_both[match(colnames(wide_data), annot_both$ID),]$group)
+annotation_data_desc <- data.frame(type = annot_both[match(colnames(wide_data), annot_both$ID),]$description)
+#colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+```
+
+```{r}
+colicin <- read.table("table3_curated.csv", header = T, sep = ";")
+colicin_a <- colicin[which(colicin$group == "A"),]
+colicin_b <- colicin[which(colicin$group == "B"),]
+lysis_index <- which(annotation_data == "lysin")
+
+for (i in lysis_index){
+  lysis_gene_name <- annotation_data_desc[i,]
+  lysis_gene_subset <- wide_data[,i]
+  wide_data_lysis_present <- wide_data[which(lysis_gene_subset > 0),] #rows in wide_data that have this gene
+  wide_data_lysis_not_present <- wide_data[which(lysis_gene_subset == 0),] 
+
+  # count colicin A
+  subset_colicin_a <- rowSums(select(wide_data_lysis_present, 
+                                     UniRef50_P02978, 
+                                     UniRef50_P09883, 
+                                     UniRef50_Q47502, 
+                                     UniRef50_P08083)) > 0
+  
+  subset_colicin_a_non_lysis <- rowSums(select(wide_data_lysis_not_present, 
+                                     UniRef50_P02978, 
+                                     UniRef50_P09883, 
+                                     UniRef50_Q47502, 
+                                     UniRef50_P08083)) > 0
+    
+  print(paste0(lysis_gene_name,
+              ": number of genomes with colicin A matches: ", 
+              length(which(subset_colicin_a)),
+              ", number of genomes without A match: ",
+              length(which(!subset_colicin_a))))
+
+  # count colicin B
+  subset_colicin_b <- rowSums(select(wide_data_lysis_present,
+                                     UniRef50_P05819, 
+                                     UniRef50_P17998, 
+                                     UniRef50_P06716, 
+                                     UniRef50_P05820)) > 0
+
+  subset_colicin_b_non_lysis <- rowSums(select(wide_data_lysis_not_present,
+                                     UniRef50_P05819, 
+                                     UniRef50_P17998, 
+                                     UniRef50_P06716, 
+                                     UniRef50_P05820)) > 0
+  
+ print(paste0(lysis_gene_name,
+              ": number of genomes with colicin B matches: ", 
+              length(which(subset_colicin_b)),
+              ", number of genomes without B match: ",
+              length(which(!subset_colicin_b))))
+ 
+  # check A/B difference with fisher test
+  contigency_table_colicin_ab <-
+  matrix(c(length(which(subset_colicin_a)),
+         length(which(subset_colicin_a_non_lysis)),
+         length(which(subset_colicin_b)),
+         length(which(subset_colicin_b_non_lysis))),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin_a", "with colicin_b")))
+  #contigency_table_colicin_ab
+  ftest_colicin_ab <- fisher.test(contigency_table_colicin_ab, alternative = "greater")
+  print(ftest_colicin_ab)
+}
+```
+
+check hypothesis that Salmonella with prophages (lysis) labour more often group B than A
+
+             a     b
+is lysis  | X    |  X   |
+no lysis  |     |     |
+
+## Sessioninfo
+
+```{r}
+sessionInfo()
+```
+
+

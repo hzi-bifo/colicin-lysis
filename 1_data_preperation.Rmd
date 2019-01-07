@@ -36,7 +36,7 @@ table3 <- read.table("table3.csv", header=T, sep=";")
 kable(table3, caption = "Uniref for colicin genes")
 ```
 
-The corresponding .fasta files are downloaded using the search term _cluster:UniRef50_P09883 AND identity:1.0_ where the UniRef ID is the corresponding ID from the table and saved to `hmm/colicin/faa`. These files were aligned using [Clustal Omega](https://www.ebi.ac.uk/Tools/msa/clustalo/) using standart parameters and the alignment was saved to the `hmm/colicin/msa` folder. [Hmmer](http://hmmer.org/) was used to generate a HMM profile from the MSA and was saved to the `hmm/colicin/hmm` folder e.g using the command `hmmbuild hmm/UniRef50_UPI00022A9A6A.hmm msa/UniRef50_UPI00022A9A6A.clustal_num`. 
+The corresponding .fasta files are downloaded using the search term _cluster:UniRef50_P09883 AND identity:1.0_ where the UniRef ID is the corresponding ID from the table and saved to `hmm/colicin/faa`. These files were aligned using [Clustal Omega](https://www.ebi.ac.uk/Tools/msa/clustalo/) using standard parameters and the alignment was saved to the `hmm/colicin/msa` folder. [Hmmer](http://hmmer.org/) was used to generate a HMM profile from the MSA and was saved to the `hmm/colicin/hmm` folder e.g using the command `hmmbuild hmm/UniRef50_UPI00022A9A6A.hmm msa/UniRef50_UPI00022A9A6A.clustal_num`. 
 
 The full HMM models for the Pfam collection (v. 32) can be downloaded via EBI. This model consists of a collection of individual HMM profiles that can be extracted from this `.hmm` file. These individual HMM files have been placed to the `hmm/` folder (e.g. `hmm/PF04971.hmm`)
 

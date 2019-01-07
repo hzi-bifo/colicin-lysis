@@ -105,8 +105,6 @@ wide_data <- rbind(wide_data, no_hits)
 lysis <- read.table("table1.csv", header = T, sep = ";")
 colicin <- read.table("table3_curated.csv", header = T, sep = ";")
 
-
-
 subset_lysis <- rowSums(select(wide_data, starts_with("P"))) > 0
 subset_colicin <- rowSums(select(wide_data, starts_with("UniRef50"))) > 0
 
