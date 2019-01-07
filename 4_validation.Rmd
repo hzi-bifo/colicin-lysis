@@ -22,7 +22,7 @@ library(DT)
 To check whether the HMM matches are TP, we can check the ORF annotation of the HMM matching region. We use a grep on the terms "lys" and "hypotetical". It seems that most are annotated correctly. 
 
 ```{r}
-acc_threshold <- 0.90
+acc_threshold <- 0.70
 lysis <- read.table("genomes/hmm_matches/lysis.csv", sep=";", header=T, stringsAsFactors=F)
 lysis <- lysis[which(lysis$acc > acc_threshold),]
 print(paste0(round(length(grep("lys", lysis$description))/nrow(lysis)*100), "%", " annotated as lysis")) 
@@ -43,13 +43,32 @@ datatable(occ, options = list(pageLength = 5))
 We can do the same for the Colicin UniRef hits. It seems that in general colicin are annotated correctly (86% have OTU annotation that match to _colicin_) and 11% are annotated as _hypothetical_. 
 
 ```{r}
-colicin <- read.table("genomes/hmm_matches/colicin.csv", sep=";", header=T, stringsAsFactors=F)
-colicin <- colicin[which(colicin$acc > acc_threshold),]
-colicin[which(colicin$query_name == "Colicin"),]$query_name <- "UniRef50_A0A0W0TIU2"
-colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+acc_threshold <- .7
+```
 
-annot <- read.table("table1.csv", header=T, sep=";")
-annot_c <- read.table("table3.csv", header=T, sep=";")
+### import colicin hits
+
+```{r}
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
+colicin <- colicin[which(colicin$query_name != "Colicin"),] # remove colicin V matches
+
+# iterate over every genome and extract best match
+colicin_best <- NULL
+for (sample in unique(colicin$sample)) {
+  subset <- colicin[which(colicin$sample == sample),]
+  hit <- which.min(subset$sequence_evalue)
+  colicin_best <- rbind(colicin_best, subset[hit,])
+}
+colicin <- colicin_best # now this table is limited to one match per genome
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+colicin <- colicin[which(colicin$acc > acc_threshold),]
+```
+
+
+
+```{r}
+annot <- read.table("table1.csv", header = T, sep = ";")
+annot_c <- read.table("table3_curated.csv", header = T, sep = ";")
 annot_both <- rbind(annot, annot_c)
 colicin$description2 <- NULL
 colicin$description2 <- annot_both[match(colicin$query_name, annot_both$ID),]$description
@@ -72,7 +91,7 @@ Now we can check how specif are the colicin types.
 
 ```{r}
 colicin$dummy <- 1
-agg <- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)
+agg <- aggregate(dummy ~ description2 + description, data = colicin, FUN = sum)
 ```
 
 
@@ -97,7 +116,6 @@ agg_subset <- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))
 ```
 
-
 ### E1
 
 ```{r}
@@ -116,16 +134,6 @@ agg_subset <- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))
 ```
 
-
-
-### V
-
-```{r}
-query <- "Cluster: Colicin V"
-agg_subset <- agg[which(agg$description2 == query),]
-agg_subset <- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 10))
-```
 
 ### N
 

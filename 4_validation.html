@@ -135,7 +135,7 @@ $(document).ready(function () {
 <div id="step-4.-validation-of-hmm-matches" class="section level1">
 <h1>Step 4. validation of HMM matches</h1>
 <p><strong>Author</strong>: Philipp Muench (<a href="mailto:pmu15@helmholtz-hzi.de">pmu15@helmholtz-hzi.de</a>)</p>
-<p><strong>Date</strong>: 2018-11-27</p>
+<p><strong>Date</strong>: 2019-01-07</p>
 <hr />
 <style type="text/css">
 h1 {
@@ -145,13 +145,13 @@ h1 {
 <pre class="r"><code>rm(list = ls())
 library(DT)</code></pre>
 <p>To check whether the HMM matches are TP, we can check the ORF annotation of the HMM matching region. We use a grep on the terms “lys” and “hypotetical”. It seems that most are annotated correctly.</p>
-<pre class="r"><code>acc_threshold &lt;- 0.90
+<pre class="r"><code>acc_threshold &lt;- 0.70
 lysis &lt;- read.table(&quot;genomes/hmm_matches/lysis.csv&quot;, sep=&quot;;&quot;, header=T, stringsAsFactors=F)
 lysis &lt;- lysis[which(lysis$acc &gt; acc_threshold),]
 print(paste0(round(length(grep(&quot;lys&quot;, lysis$description))/nrow(lysis)*100), &quot;%&quot;, &quot; annotated as lysis&quot;)) </code></pre>
-<pre><code>## [1] &quot;97% annotated as lysis&quot;</code></pre>
+<pre><code>## [1] &quot;78% annotated as lysis&quot;</code></pre>
 <pre class="r"><code>print(paste0(round(length(grep(&quot;hypothetical&quot;, lysis$description))/nrow(lysis)*100), &quot;%&quot;, &quot; annotated as hypothetical&quot;))</code></pre>
-<pre><code>## [1] &quot;1% annotated as hypothetical&quot;</code></pre>
+<pre><code>## [1] &quot;20% annotated as hypothetical&quot;</code></pre>
 <p>Now we can check what annotation have the remaining matches.</p>
 <pre class="r"><code>set_a &lt;- grep(&quot;hypothetical&quot;, lysis$description)
 set_b &lt;- grep(&quot;lys&quot;, lysis$description)
@@ -159,25 +159,36 @@ remaining &lt;- lysis[-c(set_a, set_b),]
 occ &lt;- as.data.frame(table(remaining$description))
 occ &lt;- occ[order(-occ$Freq),]
 datatable(occ, options = list(pageLength = 5))</code></pre>
-<div id="htmlwidget-53eea8aeda24df6a4068" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-53eea8aeda24df6a4068">{"x":{"filter":"none","data":[["5","2","21","20","18","9","23","13","16","29","12","17","26","22","24","8","11","1","6","7","30","3","4","10","14","15","19","25","27","28","31","32"],["endopeptidase [Salmonella enterica]","DUF3380 domain-containing protein [Salmonella enterica]","muraminidase, partial [Salmonella enterica]","muraminidase [Salmonella enterica]","MULTISPECIES: holin [Enterobacteriaceae]","glycoside hydrolase [Salmonella enterica]","peptidase [Salmonella enterica]","Lysozyme (Muramidase) [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Enterobacteriaceae]","Putative bacteriophage holin protein [Salmonella enterica]","holin [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Proteobacteria]","Phage endopeptidase [Salmonella enterica]","N-acetylmuramidase family protein [Salmonella enterica]","peptidase, partial [Salmonella enterica]","endopeptidase, partial [Salmonella enterica]","glycoside hydrolase, partial [Salmonella enterica]","coat protein [Salmonella enterica]","endopeptidase from phage origin (Lysis protein Rz) [Salmonella enterica]","endopeptidase-like protein [Salmonella enterica]","putative endopeptidase [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","DUF3380 domain-containing protein, partial [Salmonella enterica]","endopeptidase [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","glycoside hydrolase family protein [Salmonella enterica]","morphogenesis-like protein, partial [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Enterobacterales]","MULTISPECIES: holin, partial [Enterobacteriaceae]","phage endopeptidase [Salmonella enterica]","phage tail protein [Salmonella enterica]","phage tail protein, partial [Salmonella enterica]","Putative endopeptidase [Salmonella enterica]","putative Lysis protein [Salmonella enterica]"],[65,61,58,56,31,26,22,14,12,12,10,9,8,7,7,3,3,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Var1<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-0d55718cd4dee3d22974" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0d55718cd4dee3d22974">{"x":{"filter":"none","data":[["16","15","5","8","29","28","25","31","12","44","18","23","32","38","24","34","30","19","39","11","17","21","14","3","4","9","10","27","40","1","2","6","7","13","20","22","26","33","35","36","37","41","42","43","45","46"],["holin family protein [Salmonella enterica]","holin [Salmonella enterica]","DUF3380 domain-containing protein [Salmonella enterica]","endopeptidase [Salmonella enterica]","muraminidase, partial [Salmonella enterica]","muraminidase [Salmonella enterica]","MULTISPECIES: holin [Enterobacteriaceae]","peptidase [Salmonella enterica]","glycoside hydrolase [Salmonella enterica]","secretion protein [Salmonella enterica]","Lysozyme (Muramidase) [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Enterobacteriaceae]","peptidase, partial [Salmonella enterica]","Putative bacteriophage holin protein [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Proteobacteria]","Phage endopeptidase [Salmonella enterica]","N-acetylmuramidase family protein [Salmonella enterica]","membrane protein [Salmonella enterica]","putative bacteriophage protein, partial [Salmonella enterica]","endopeptidase, partial [Salmonella enterica]","holin family protein, partial [Salmonella enterica]","MULTISPECIES: diacylglyceryl transferase [Enterobacteriaceae]","glycoside hydrolase, partial [Salmonella enterica]","coat protein [Salmonella enterica]","diacylglyceryl transferase [Salmonella enterica]","endopeptidase from phage origin (Lysis protein Rz) [Salmonella enterica]","endopeptidase-like protein [Salmonella enterica]","MULTISPECIES: membrane protein [Enterobacteriaceae]","putative endopeptidase [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","alpha/beta hydrolase [Salmonella enterica]","alpha/beta hydrolase, partial [Salmonella enterica]","DUF3380 domain-containing protein, partial [Salmonella enterica]","endopeptidase [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","glycoside hydrolase family protein [Salmonella enterica]","morphogenesis-like protein, partial [Salmonella enterica]","MULTISPECIES: glycoside hydrolase [Enterobacterales]","MULTISPECIES: holin, partial [Enterobacteriaceae]","phage endopeptidase [Salmonella enterica]","Phage protein [Salmonella enterica]","phage tail protein [Salmonella enterica]","phage tail protein, partial [Salmonella enterica]","Putative endopeptidase [Salmonella enterica]","putative Lysis protein [Salmonella enterica]","putative secretory protein [Salmonella enterica]","secretion protein, partial [Salmonella enterica]","secretory protein [Salmonella enterica subsp. enterica serovar Typhi str. CT18]"],[100,99,72,65,58,56,35,30,26,24,14,12,12,12,9,8,7,6,5,4,4,4,3,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Var1<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 <p>We can do the same for the Colicin UniRef hits. It seems that in general colicin are annotated correctly (86% have OTU annotation that match to <em>colicin</em>) and 11% are annotated as <em>hypothetical</em>.</p>
-<pre class="r"><code>colicin &lt;- read.table(&quot;genomes/hmm_matches/colicin.csv&quot;, sep=&quot;;&quot;, header=T, stringsAsFactors=F)
-colicin &lt;- colicin[which(colicin$acc &gt; acc_threshold),]
-colicin[which(colicin$query_name == &quot;Colicin&quot;),]$query_name &lt;- &quot;UniRef50_A0A0W0TIU2&quot;
-colicin[which(colicin$query_name == &quot;Colicin-E1&quot;),]$query_name &lt;- &quot;UniRef50_P02978&quot;
+<pre class="r"><code>acc_threshold &lt;- .7</code></pre>
+<div id="import-colicin-hits" class="section level3">
+<h3>import colicin hits</h3>
+<pre class="r"><code>colicin &lt;- read.table(&quot;genomes/hmm_matches/colicin.csv&quot;, sep = &quot;;&quot;, header = T, stringsAsFactors = F)
+colicin &lt;- colicin[which(colicin$query_name != &quot;Colicin&quot;),] # remove colicin V matches
 
-annot &lt;- read.table(&quot;table1.csv&quot;, header=T, sep=&quot;;&quot;)
-annot_c &lt;- read.table(&quot;table3.csv&quot;, header=T, sep=&quot;;&quot;)
+# iterate over every genome and extract best match
+colicin_best &lt;- NULL
+for (sample in unique(colicin$sample)) {
+  subset &lt;- colicin[which(colicin$sample == sample),]
+  hit &lt;- which.min(subset$sequence_evalue)
+  colicin_best &lt;- rbind(colicin_best, subset[hit,])
+}
+colicin &lt;- colicin_best # now this table is limited to one match per genome
+colicin[which(colicin$query_name == &quot;Colicin-E1&quot;),]$query_name &lt;- &quot;UniRef50_P02978&quot;
+colicin &lt;- colicin[which(colicin$acc &gt; acc_threshold),]</code></pre>
+<pre class="r"><code>annot &lt;- read.table(&quot;table1.csv&quot;, header = T, sep = &quot;;&quot;)
+annot_c &lt;- read.table(&quot;table3_curated.csv&quot;, header = T, sep = &quot;;&quot;)
 annot_both &lt;- rbind(annot, annot_c)
 colicin$description2 &lt;- NULL
 colicin$description2 &lt;- annot_both[match(colicin$query_name, annot_both$ID),]$description
 colicin$group &lt;- annot_both[match(colicin$query_name, annot_both$ID),]$group
 
 print(paste0(round(length(grep(&quot;colicin&quot;, colicin$description))/nrow(colicin)*100), &quot;%&quot;, &quot; annotated as colicin&quot;)) </code></pre>
-<pre><code>## [1] &quot;95% annotated as colicin&quot;</code></pre>
+<pre><code>## [1] &quot;64% annotated as colicin&quot;</code></pre>
 <pre class="r"><code>print(paste0(round(length(grep(&quot;hypothetical&quot;, colicin$description))/nrow(colicin)*100), &quot;%&quot;, &quot; annotated as hypothetical&quot;)) </code></pre>
-<pre><code>## [1] &quot;3% annotated as hypothetical&quot;</code></pre>
+<pre><code>## [1] &quot;18% annotated as hypothetical&quot;</code></pre>
 <pre class="r"><code>set_a &lt;- grep(&quot;hypothetical&quot;, colicin$description)
 set_b &lt;- grep(&quot;colicin&quot;, colicin$description)
 
@@ -186,11 +197,12 @@ occ &lt;- as.data.frame(table(remaining$description))
 occ &lt;- occ[order(-occ$Freq),]
 
 datatable(occ, options = list(pageLength = 5))</code></pre>
-<div id="htmlwidget-93b6ed2133e55c2be6ab" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-93b6ed2133e55c2be6ab">{"x":{"filter":"none","data":[["2","13","11","14","10","8","12","1","3","4","5","6","7","9","15"],["cloacin [Salmonella enterica]","pyocin [Salmonella enterica]","MULTISPECIES: HNH endonuclease [Enterobacteriaceae]","pyocin, partial [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","lipid II-degrading bacteriocin [Salmonella enterica]","Putative klebicin D activity protein [Salmonella enterica]","cloacin [Klebsiella pneumoniae]","Colicin V production protein Protein dedE Pur regulon 18 kDa protein [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","Colicin-E6 Ribonuclease [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","filamentous hemagglutinin N-terminal domain-containing protein [Salmonella enterica]","HNH endonuclease [Salmonella enterica]","HNH endonuclease, partial [Salmonella enterica]","MULTISPECIES: cloacin [Enterobacteriaceae]","type VI secretion system tip protein VgrG [Salmonella enterica]"],[155,54,8,7,6,5,4,1,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Var1<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-149856ed79ba7013649a" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-149856ed79ba7013649a">{"x":{"filter":"none","data":[["1","9","13","12","4","10","11","5","7","8","2","3","6"],["cloacin [Salmonella enterica]","pyocin [Salmonella enterica]","type VI secretion system tube protein Hcp [Salmonella enterica]","type VI secretion system tip protein VgrG [Salmonella enterica]","HNH endonuclease [Salmonella enterica]","pyocin, partial [Salmonella enterica]","type II toxin-antitoxin system HigA family antitoxin [Salmonella enterica]","lipid II-degrading bacteriocin [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","MULTISPECIES: HNH endonuclease [Enterobacteriaceae]","Colicin-E6 Ribonuclease [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","DUF2345 domain-containing protein [Salmonella enterica]","MULTISPECIES: cloacin [Enterobacteriaceae]"],[151,19,18,6,3,3,3,2,2,2,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>Var1<\/th>\n      <th>Freq<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"columnDefs":[{"className":"dt-right","targets":2},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"lengthMenu":[5,10,25,50,100]}},"evals":[],"jsHooks":[]}</script>
 <p>Now we can check how specif are the colicin types.</p>
 <pre class="r"><code>colicin$dummy &lt;- 1
-agg &lt;- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)</code></pre>
+agg &lt;- aggregate(dummy ~ description2 + description, data = colicin, FUN = sum)</code></pre>
+</div>
 <div id="colicin-orf-hits" class="section level2 tabset tabset-fade">
 <h2>Colicin ORF hits</h2>
 <p>Now we can spot check by hand the most occuring ORF annotations for Colicin clusters. We see here that some seems to be specific (e.g. Colicin V) while other are non specific and show matches to Colicin E and B for example. The number in the <em>dummy</em> column shows the number of ORF hits of the HMM model.</p>
@@ -200,8 +212,8 @@ agg &lt;- aggregate(dummy ~ description2 + description, data=colicin, FUN=sum)</
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-cbde07dcfe116a659ea7" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-cbde07dcfe116a659ea7">{"x":{"filter":"none","data":[["60","128","90","35","30","37","15","18","20","50"],["Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B"],["hypothetical protein [Salmonella enterica]","MULTISPECIES: pore-forming bacteriocin colicin B [Enterobacteriaceae]","MULTISPECIES: colicin B [Enterobacteriaceae]","colicin-A [Salmonella enterica]","colicin Y [Salmonella enterica]","colicin-B [Salmonella enterica]","colicin B [Salmonella enterica]","colicin immunity protein [Salmonella enterica]","colicin N [Salmonella enterica]","colicin, partial [Salmonella enterica]"],[8,7,6,4,3,2,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-2bacb11670e357f1ffe0" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2bacb11670e357f1ffe0">{"x":{"filter":"none","data":[["52","41","24","12","13","7","10"],["Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B","Cluster: Colicin-B"],["MULTISPECIES: pore-forming bacteriocin colicin B [Enterobacteriaceae]","MULTISPECIES: colicin B [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","colicin-A [Salmonella enterica]","colicin-B [Salmonella enterica]","colicin B [Salmonella enterica]","colicin Y [Salmonella enterica]"],[7,6,3,2,2,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="m" class="section level3">
 <h3>M</h3>
@@ -209,8 +221,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-02eb071dc5b5e87179a5" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-02eb071dc5b5e87179a5">{"x":{"filter":"none","data":[["66","99","127","73","11","45","74"],["Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M"],["hypothetical protein [Salmonella enterica]","MULTISPECIES: colicin M [Enterobacteriaceae]","MULTISPECIES: lipid II-degrading bacteriocin colicin M [Enterobacteriaceae]","lipid II-degrading bacteriocin [Salmonella enterica]","colicin [Salmonella enterica]","colicin-M [Salmonella enterica]","lipid II-degrading bacteriocin colicin M, partial [Salmonella enterica]"],[33,9,8,5,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-70e6d8dc9335ea6afeca" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-70e6d8dc9335ea6afeca">{"x":{"filter":"none","data":[["29","32","5","18","33","51"],["Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M","Cluster: Colicin-M"],["hypothetical protein [Salmonella enterica]","lipid II-degrading bacteriocin [Salmonella enterica]","colicin [Salmonella enterica]","colicin-M [Salmonella enterica]","lipid II-degrading bacteriocin colicin M, partial [Salmonella enterica]","MULTISPECIES: lipid II-degrading bacteriocin colicin M [Enterobacteriaceae]"],[27,2,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="e1" class="section level3">
 <h3>E1</h3>
@@ -218,8 +230,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-a81edd6b93e807b8bbf9" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-a81edd6b93e807b8bbf9">{"x":{"filter":"none","data":[["123","82","62","33","111","7","51","70","77","96","119"],["Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1"],["MULTISPECIES: hypothetical protein [Enterobacteriaceae]","MULTISPECIES: colicin 10 [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","colicin-10 [Salmonella enterica]","MULTISPECIES: colicin-Ib [Enterobacteriaceae]","colicin [Salmonella enterica]","colicin, partial [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","MULTISPECIES: colicin [Enterobacteriaceae]","MULTISPECIES: colicin K [Gammaproteobacteria]","MULTISPECIES: hypothetical protein [Bacteria]"],[48,26,9,7,4,3,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-241311d8628de3735ba2" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-241311d8628de3735ba2">{"x":{"filter":"none","data":[["38","11","26","35"],["Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1","Cluster: Colicin-E1"],["MULTISPECIES: colicin 10 [Enterobacteriaceae]","colicin-10 [Salmonella enterica]","hypothetical protein [Salmonella enterica]","MULTISPECIES: colicin [Enterobacteriaceae]"],[26,4,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="e9" class="section level3">
 <h3>E9</h3>
@@ -227,17 +239,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-1f40d4de2921496f274d" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1f40d4de2921496f274d">{"x":{"filter":"none","data":[["2","8","78","52","117","63","131","1","40","41","57","58","75","134"],["Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9"],["cloacin [Salmonella enterica]","colicin [Salmonella enterica]","MULTISPECIES: colicin [Enterobacteriaceae]","colicin, partial [Salmonella enterica]","MULTISPECIES: HNH endonuclease [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","Putative klebicin D activity protein [Salmonella enterica]","cloacin [Klebsiella pneumoniae]","colicin-D [Salmonella enterica]","Colicin-E6 Ribonuclease [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","HNH endonuclease [Salmonella enterica]","HNH endonuclease, partial [Salmonella enterica]","MULTISPECIES: cloacin [Enterobacteriaceae]","type VI secretion system tip protein VgrG [Salmonella enterica]"],[155,106,19,10,8,7,2,1,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-</div>
-<div id="v" class="section level3">
-<h3>V</h3>
-<pre class="r"><code>query &lt;- &quot;Cluster: Colicin V&quot;
-agg_subset &lt;- agg[which(agg$description2 == query),]
-agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
-datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-ef70dc7a2985e0f5b203" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-ef70dc7a2985e0f5b203">{"x":{"filter":"none","data":[["26","108","29","106","25","27","28","107"],["Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V","Cluster: Colicin V"],["colicin V production protein [Salmonella enterica]","MULTISPECIES: colicin V production protein [Salmonella]","colicin V production protein, partial [Salmonella enterica]","MULTISPECIES: colicin V production protein [Enterobacteriaceae]","colicin V production protein [Salmonella enterica subsp. enterica serovar Typhi str. CT18]","colicin V production protein [Salmonella enterica]eina","Colicin V production protein Protein dedE Pur regulon 18 kDa protein [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","MULTISPECIES: colicin V production protein [Proteobacteria]"],[9280,196,6,3,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-4c576f11090c65ae4243" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4c576f11090c65ae4243">{"x":{"filter":"none","data":[["1","3","36","58","27","20","57","23","47","16","22","34"],["Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9","Cluster: Colicin-E9"],["cloacin [Salmonella enterica]","colicin [Salmonella enterica]","MULTISPECIES: colicin [Enterobacteriaceae]","type VI secretion system tube protein Hcp [Salmonella enterica]","hypothetical protein [Salmonella enterica]","colicin, partial [Salmonella enterica]","type VI secretion system tip protein VgrG [Salmonella enterica]","HNH endonuclease [Salmonella enterica]","MULTISPECIES: HNH endonuclease [Enterobacteriaceae]","Colicin-E6 Ribonuclease [Salmonella enterica subsp. enterica serovar Weltevreden str. 2007-60-3289-1]","DUF2345 domain-containing protein [Salmonella enterica]","MULTISPECIES: cloacin [Enterobacteriaceae]"],[151,106,19,18,11,10,6,3,2,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="n" class="section level3">
 <h3>N</h3>
@@ -245,8 +248,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-1e2fe7052c0639eaa3b1" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1e2fe7052c0639eaa3b1">{"x":{"filter":"none","data":[["67","129","91","36","31","38","16","19","21","55"],["Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N","Cluster: Colicin-N"],["hypothetical protein [Salmonella enterica]","MULTISPECIES: pore-forming bacteriocin colicin B [Enterobacteriaceae]","MULTISPECIES: colicin B [Enterobacteriaceae]","colicin-A [Salmonella enterica]","colicin Y [Salmonella enterica]","colicin-B [Salmonella enterica]","colicin B [Salmonella enterica]","colicin immunity protein [Salmonella enterica]","colicin N [Salmonella enterica]","colicin, partial [Salmonella enterica]"],[8,7,6,4,3,2,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-edca50e610ddd85055ea" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-edca50e610ddd85055ea">{"x":{"filter":"none","data":[["8"],["Cluster: Colicin-N"],["colicin N [Salmonella enterica]"],[1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="d" class="section level3">
 <h3>D</h3>
@@ -254,8 +257,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-574fe37ef8e6b7c40851" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-574fe37ef8e6b7c40851">{"x":{"filter":"none","data":[["132","61","133","69","130","39","56","126"],["Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D"],["pyocin [Salmonella enterica]","hypothetical protein [Salmonella enterica]","pyocin, partial [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","Putative klebicin D activity protein [Salmonella enterica]","colicin-D [Salmonella enterica]","filamentous hemagglutinin N-terminal domain-containing protein [Salmonella enterica]","MULTISPECIES: hypothetical protein [Salmonella]"],[54,14,7,4,2,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-ca8c37cce5a9bba91e7a" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ca8c37cce5a9bba91e7a">{"x":{"filter":"none","data":[["25","54","30","15","14","55","50","53"],["Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D","Cluster: Colicin-D"],["hypothetical protein [Salmonella enterica]","pyocin [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","colicin-D, partial [Salmonella enterica]","colicin-D [Salmonella enterica]","pyocin, partial [Salmonella enterica]","MULTISPECIES: hypothetical protein [Salmonella]","putative colicin activity protein, partial [Salmonella enterica]"],[36,19,6,4,3,3,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="ia" class="section level3">
 <h3>Ia</h3>
@@ -263,8 +266,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-b798757d9a0b09af94db" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-b798757d9a0b09af94db">{"x":{"filter":"none","data":[["79","88","64","124","85","9","104","53","47","109","112","115","23","71","93","101","4","13","17","43","97","120"],["Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia"],["MULTISPECIES: colicin [Enterobacteriaceae]","MULTISPECIES: colicin 1B [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","MULTISPECIES: hypothetical protein [Enterobacteriaceae]","MULTISPECIES: colicin 1A [Enterobacteriaceae]","colicin [Salmonella enterica]","MULTISPECIES: colicin transporter [Enterobacteriaceae]","colicin, partial [Salmonella enterica]","colicin, partial [Escherichia coli]","MULTISPECIES: colicin-Ia domain protein [Enterobacteriaceae]","MULTISPECIES: colicin-Ib [Enterobacteriaceae]","MULTISPECIES: colicin, partial [Enterobacteriaceae]","colicin transporter [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","MULTISPECIES: colicin pore forming domain protein [Enterobacteriaceae]","colicin [Escherichia coli]","colicin 1A [Escherichia coli]","colicin Ia family protein [Salmonella enterica]","colicin-Ia [Salmonella enterica]","MULTISPECIES: colicin K [Gammaproteobacteria]","MULTISPECIES: hypothetical protein [Bacteria]"],[310,179,78,56,44,29,15,8,6,5,4,4,3,3,2,2,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-00a64d002b798c6dd53e" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-00a64d002b798c6dd53e">{"x":{"filter":"none","data":[["37","40","28","49","39","4","44","21","19","45","9","46","56","42","2","6","17","31","48"],["Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia","Cluster: Colicin-Ia"],["MULTISPECIES: colicin [Enterobacteriaceae]","MULTISPECIES: colicin 1B [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","MULTISPECIES: hypothetical protein [Enterobacteriaceae]","MULTISPECIES: colicin 1A [Enterobacteriaceae]","colicin [Salmonella enterica]","MULTISPECIES: colicin transporter [Enterobacteriaceae]","colicin, partial [Salmonella enterica]","colicin, partial [Escherichia coli]","MULTISPECIES: colicin-Ib [Enterobacteriaceae]","colicin transporter [Salmonella enterica]","MULTISPECIES: colicin, partial [Enterobacteriaceae]","type II toxin-antitoxin system HigA family antitoxin [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","colicin [Escherichia coli]","colicin 1A [Escherichia coli]","colicin-Ia [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","MULTISPECIES: hypothetical protein [Bacteria]"],[304,165,69,68,42,26,15,7,6,4,3,3,3,2,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="k" class="section level3">
 <h3>K</h3>
@@ -272,8 +275,8 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-27e64e3e6a16f756b470" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-27e64e3e6a16f756b470">{"x":{"filter":"none","data":[["80","89","125","86","10","83","105","65","34","48","54","113","116","24","94","102","5","14","44","72","98","121"],["Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K","Cluster: Colicin-K"],["MULTISPECIES: colicin [Enterobacteriaceae]","MULTISPECIES: colicin 1B [Enterobacteriaceae]","MULTISPECIES: hypothetical protein [Enterobacteriaceae]","MULTISPECIES: colicin 1A [Enterobacteriaceae]","colicin [Salmonella enterica]","MULTISPECIES: colicin 10 [Enterobacteriaceae]","MULTISPECIES: colicin transporter [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","colicin-10 [Salmonella enterica]","colicin, partial [Escherichia coli]","colicin, partial [Salmonella enterica]","MULTISPECIES: colicin-Ib [Enterobacteriaceae]","MULTISPECIES: colicin, partial [Enterobacteriaceae]","colicin transporter [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","MULTISPECIES: colicin pore forming domain protein [Enterobacteriaceae]","colicin [Escherichia coli]","colicin 1A [Escherichia coli]","colicin-Ia [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","MULTISPECIES: colicin K [Gammaproteobacteria]","MULTISPECIES: hypothetical protein [Bacteria]"],[310,179,56,44,29,26,15,10,9,6,5,4,4,3,2,2,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-4081916132d29457c703" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4081916132d29457c703">{"x":{"filter":"none","data":[["43"],["Cluster: Colicin-K"],["MULTISPECIES: colicin K [Gammaproteobacteria]"],[1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 <div id="y" class="section level3">
 <h3>Y</h3>
@@ -281,42 +284,37 @@ datatable(agg_subset, options = list(pageLength = 10))</code></pre>
 agg_subset &lt;- agg[which(agg$description2 == query),]
 agg_subset &lt;- agg_subset[order(-agg_subset$dummy),]
 datatable(agg_subset, options = list(pageLength = 10))</code></pre>
-<div id="htmlwidget-241639eb72556a752284" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-241639eb72556a752284">{"x":{"filter":"none","data":[["76","87","122","84","6","81","103","59","32","46","49","110","114","22","92","100","3","12","42","68","95","118"],["Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y","Cluster: Colicin Y"],["MULTISPECIES: colicin [Enterobacteriaceae]","MULTISPECIES: colicin 1B [Enterobacteriaceae]","MULTISPECIES: hypothetical protein [Enterobacteriaceae]","MULTISPECIES: colicin 1A [Enterobacteriaceae]","colicin [Salmonella enterica]","MULTISPECIES: colicin 10 [Enterobacteriaceae]","MULTISPECIES: colicin transporter [Enterobacteriaceae]","hypothetical protein [Salmonella enterica]","colicin-10 [Salmonella enterica]","colicin, partial [Escherichia coli]","colicin, partial [Salmonella enterica]","MULTISPECIES: colicin-Ib [Enterobacteriaceae]","MULTISPECIES: colicin, partial [Enterobacteriaceae]","colicin transporter [Salmonella enterica]","MULTISPECIES: Colicin Ib [Enterobacteriaceae]","MULTISPECIES: colicin pore forming domain protein [Enterobacteriaceae]","colicin [Escherichia coli]","colicin 1A [Escherichia coli]","colicin-Ia [Salmonella enterica]","hypothetical protein, partial [Salmonella enterica]","MULTISPECIES: colicin K [Gammaproteobacteria]","MULTISPECIES: hypothetical protein [Bacteria]"],[310,179,56,44,29,26,15,10,9,6,5,4,4,3,2,2,1,1,1,1,1,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-6627843a0045fd8d8d9e" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6627843a0045fd8d8d9e">{"x":{"filter":"none","data":[[],[],[],[]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>description2<\/th>\n      <th>description<\/th>\n      <th>dummy<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":10,"columnDefs":[{"className":"dt-right","targets":3},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
 <div id="sessioninfo" class="section level2">
 <h2>Sessioninfo</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 3.4.4 (2018-03-15)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: elementary OS 5.0 Juno
+<pre><code>## R version 3.5.1 (2018-07-02)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS  10.14.2
 ## 
 ## Matrix products: default
-## BLAS: /usr/lib/x86_64-linux-gnu/blas/libblas.so.3.7.1
-## LAPACK: /usr/lib/x86_64-linux-gnu/lapack/liblapack.so.3.7.1
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=it_IT.UTF-8        LC_COLLATE=en_US.UTF-8    
-##  [5] LC_MONETARY=it_IT.UTF-8    LC_MESSAGES=en_US.UTF-8   
-##  [7] LC_PAPER=it_IT.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=it_IT.UTF-8 LC_IDENTIFICATION=C       
+## [1] de_DE.UTF-8/de_DE.UTF-8/de_DE.UTF-8/C/de_DE.UTF-8/de_DE.UTF-8
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] DT_0.5         rmarkdown_1.10 nvimcom_0.9-75
+## [1] DT_0.5
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.0      knitr_1.20      magrittr_1.5    xtable_1.8-3   
-##  [5] R6_2.3.0        stringr_1.3.1   tools_3.4.4     htmltools_0.3.6
-##  [9] crosstalk_1.0.0 yaml_2.2.0      rprojroot_1.3-2 digest_0.6.18  
-## [13] shiny_1.2.0     later_0.7.5     htmlwidgets_1.3 promises_1.0.1 
-## [17] evaluate_0.12   mime_0.6        stringi_1.2.4   compiler_3.4.4 
-## [21] backports_1.1.2 jsonlite_1.5    httpuv_1.4.5</code></pre>
+##  [1] Rcpp_1.0.0      later_0.7.5     digest_0.6.18   rprojroot_1.3-2
+##  [5] mime_0.6        R6_2.3.0        jsonlite_1.5    xtable_1.8-3   
+##  [9] backports_1.1.2 magrittr_1.5    evaluate_0.12   stringi_1.2.4  
+## [13] promises_1.0.1  rmarkdown_1.10  tools_3.5.1     stringr_1.3.1  
+## [17] htmlwidgets_1.3 crosstalk_1.0.0 shiny_1.2.0     yaml_2.2.0     
+## [21] httpuv_1.4.5.1  compiler_3.5.1  htmltools_0.3.6 knitr_1.20</code></pre>
 </div>
 </div>
 
