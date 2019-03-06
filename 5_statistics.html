@@ -96,6 +96,9 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
+summary {
+  display: list-item;
+}
 </style>
 
 
@@ -103,14 +106,74 @@ button.code-folding-btn:focus {
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -127,7 +190,7 @@ $(document).ready(function () {
 <div id="step-5.-hypothesis-testing" class="section level1">
 <h1>Step 5. Hypothesis testing</h1>
 <p><strong>Author</strong>: Philipp Muench (<a href="mailto:philipp.muench@helmholtz-hzi.de">philipp.muench@helmholtz-hzi.de</a>)</p>
-<p><strong>Date</strong>: 2019-01-06</p>
+<p><strong>Date</strong>: 2019-03-06</p>
 <hr />
 <style type="text/css">
 h1 {
@@ -153,6 +216,7 @@ library(tidyr)</code></pre>
 ## 
 ##     smiths</code></pre>
 <pre class="r"><code>library(&quot;dplyr&quot;)</code></pre>
+<pre><code>## Warning: package 'dplyr' was built under R version 3.5.2</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
 <pre><code>## The following objects are masked from 'package:stats':
@@ -222,8 +286,6 @@ wide_data &lt;- rbind(wide_data, no_hits)</code></pre>
 lysis &lt;- read.table(&quot;table1.csv&quot;, header = T, sep = &quot;;&quot;)
 colicin &lt;- read.table(&quot;table3_curated.csv&quot;, header = T, sep = &quot;;&quot;)
 
-
-
 subset_lysis &lt;- rowSums(select(wide_data, starts_with(&quot;P&quot;))) &gt; 0
 subset_colicin &lt;- rowSums(select(wide_data, starts_with(&quot;UniRef50&quot;))) &gt; 0
 
@@ -263,6 +325,9 @@ contigency_table</code></pre>
 ## colicin         with colicin without colicin
 ##   with lysis            1183            8013
 ##   without lysis           30             273</code></pre>
+<pre class="r"><code>lysis_sub &lt;- wide_data[which(!subset_lysis),] 
+lysis_sub$taxa &lt;- all_genomes[match(rownames(lysis_sub), all_genomes$genome_id),]$Organism.Name
+View(as.data.frame(table(lysis_sub$taxa)))</code></pre>
 <pre><code>## [1] &quot;Fraction of bacteria that have lysis (one or more lysis related Pfams): 96.81%&quot;</code></pre>
 <pre><code>## [1] &quot;Fraction of bacteria that dont have lysis (no lysis related Pfams): 3.19%&quot;</code></pre>
 <pre><code>## [1] &quot;Fraction of bacteria that have lysis AND a colicin gene: 12.86%&quot;</code></pre>
@@ -376,13 +441,39 @@ print(ftest_colicin_a)</code></pre>
 ## sample estimates:
 ## odds ratio 
 ##   1.169602</code></pre>
+<pre class="r"><code>contigency_table_colicin_ab &lt;-
+matrix(c(nrow(wide_data_w_lysis_w_colicin_b),
+         nrow(wide_data_wo_lysis_w_colicin_b),
+         nrow(wide_data_w_lysis_w_colicin_a),
+         nrow(wide_data_wo_lysis_w_colicin_a)),
+       nrow = 2,
+       dimnames = list(colicin = c(&quot;with lysis&quot;, &quot;without lysis&quot;),
+                       lysis = c(&quot;with colicin_b&quot;, &quot;with colicin_a&quot;)))
+contigency_table_colicin_ab</code></pre>
+<pre><code>##                lysis
+## colicin         with colicin_b with colicin_a
+##   with lysis               830            353
+##   without lysis             20             10</code></pre>
+<pre class="r"><code>ftest_colicin_ab &lt;- fisher.test(contigency_table_colicin_b, alternative = &quot;greater&quot;)
+print(ftest_colicin_ab)</code></pre>
+<pre><code>## 
+##  Fisher's Exact Test for Count Data
+## 
+## data:  contigency_table_colicin_b
+## p-value = 0.084
+## alternative hypothesis: true odds ratio is greater than 1
+## 95 percent confidence interval:
+##  0.9455098       Inf
+## sample estimates:
+## odds ratio 
+##   1.403793</code></pre>
 </div>
 <div id="sessioninfo" class="section level2">
 <h2>Sessioninfo</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS  10.14.2
+## Running under: macOS  10.14.3
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
@@ -395,16 +486,15 @@ print(ftest_colicin_a)</code></pre>
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] dplyr_0.7.8    tidyr_0.8.2    reshape2_1.4.3
+## [1] dplyr_0.8.0.1  tidyr_0.8.2    reshape2_1.4.3
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.0       bindr_0.1.1      knitr_1.20       magrittr_1.5    
-##  [5] tidyselect_0.2.5 R6_2.3.0         rlang_0.3.0.1    stringr_1.3.1   
-##  [9] plyr_1.8.4       tools_3.5.1      htmltools_0.3.6  rprojroot_1.3-2 
-## [13] digest_0.6.18    assertthat_0.2.0 tibble_1.4.2     crayon_1.3.4    
-## [17] bindrcpp_0.2.2   purrr_0.2.5      glue_1.3.0       evaluate_0.12   
-## [21] rmarkdown_1.10   stringi_1.2.4    compiler_3.5.1   pillar_1.3.0    
-## [25] backports_1.1.2  pkgconfig_2.0.2</code></pre>
+##  [1] Rcpp_1.0.0       knitr_1.21       magrittr_1.5     tidyselect_0.2.5
+##  [5] R6_2.4.0         rlang_0.3.1      stringr_1.4.0    plyr_1.8.4      
+##  [9] tools_3.5.1      xfun_0.5         htmltools_0.3.6  digest_0.6.18   
+## [13] assertthat_0.2.0 tibble_2.0.1     crayon_1.3.4     purrr_0.3.0     
+## [17] glue_1.3.0       evaluate_0.13    rmarkdown_1.11   stringi_1.3.1   
+## [21] compiler_3.5.1   pillar_1.3.1     pkgconfig_2.0.2</code></pre>
 </div>
 </div>
 

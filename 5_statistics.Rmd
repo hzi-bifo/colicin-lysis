@@ -138,6 +138,11 @@ matrix(c(nrow(wide_data_w_lysis_w_colicin),
        dimnames = list(colicin = c("with lysis", "without lysis"),
                        lysis = c("with colicin", "without colicin")))
 contigency_table
+
+
+lysis_sub <- wide_data[which(!subset_lysis),] 
+lysis_sub$taxa <- all_genomes[match(rownames(lysis_sub), all_genomes$genome_id),]$Organism.Name
+View(as.data.frame(table(lysis_sub$taxa)))
 ```
 
 ```{r, echo=F}
@@ -257,6 +262,24 @@ print(ftest_colicin_b)
 ftest_colicin_a <- fisher.test(contigency_table_colicin_a, alternative = "greater")
 print(ftest_colicin_a)
 ```
+
+```{r}
+contigency_table_colicin_ab <-
+matrix(c(nrow(wide_data_w_lysis_w_colicin_b),
+         nrow(wide_data_wo_lysis_w_colicin_b),
+         nrow(wide_data_w_lysis_w_colicin_a),
+         nrow(wide_data_wo_lysis_w_colicin_a)),
+       nrow = 2,
+       dimnames = list(colicin = c("with lysis", "without lysis"),
+                       lysis = c("with colicin_b", "with colicin_a")))
+contigency_table_colicin_ab
+
+ftest_colicin_ab <- fisher.test(contigency_table_colicin_b, alternative = "greater")
+print(ftest_colicin_ab)
+```
+
+
+
 
 ## Sessioninfo
 
