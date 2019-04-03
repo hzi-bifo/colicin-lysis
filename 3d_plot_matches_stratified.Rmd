@@ -19,11 +19,13 @@ load libraries
 ```{r}
 rm(list = ls())
 library(tidyr)
+library(stringi)
 library(ComplexHeatmap)
 library(ggplot2)
 library(reshape2)
 library(stringr)
 library(gplots)
+source("theme.R")
 ```
 
 In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
@@ -97,11 +99,13 @@ no_hits[is.na(no_hits)] <- 0
 wide_data <- rbind(wide_data, no_hits)
 ```
 
-## most occuring 5 taxa
+## most occuring 10 taxa, dont group by occurence
 
 ```{r}
-n <- 5 #number of taxa to keep
-wide_data$taxa <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
+n <- 10 #number of taxa to keep
+wide_data[wide_data > 0] = 1# binarize
+taxas <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
+wide_data$taxa <-  gsub("\\ str.*","",taxas)
 
 # remove generic names
 wide_data <- wide_data[which(wide_data$taxa != "Salmonella enterica"),]
@@ -112,33 +116,54 @@ taxa_occ <- taxa_occ[order(-taxa_occ$Freq),][1:n,]  # sort
 wide_data <- wide_data[which(!is.na(match(wide_data$taxa, taxa_occ$Var1))),] # limit to the top n names
 
 df_m <- melt(wide_data, value.names = c(sample, taxa))
-df_m$text <- ""
-df_m[which(df_m$value == 0),]$text <- "a 0"
-df_m[which(df_m$value == 1),]$text <- "b 1"
-df_m[which(df_m$value > 1),]$text <- "c 2-5"
-df_m[which(df_m$value > 5),]$text <- "d >5"
-df_m$dummy <- 1
-df <- aggregate(dummy ~ variable + text + taxa, data = df_m, FUN = sum)
+df <- aggregate(value ~ variable + taxa, data = df_m, FUN = sum)
 # load pfam/UniRef annotations
-annot <- read.table("table1.csv", header=T, sep=";")
-annot_c <- read.table("table3_curated.csv", header=T, sep=";")
+annot <- read.table("table1.csv", header = T, sep = ";")
+annot_c <- read.table("table3_curated.csv", header = T, sep = ";")
 annot_both <- rbind(annot, annot_c)
 df$description <- NULL
 df$description <- annot_both[match(df$variable, annot_both$ID),]$description
 df$group <- annot_both[match(df$variable, annot_both$ID),]$group
+df$serovar <- stri_extract_last_words(df$taxa)
+df$serovar <- as.character(df$serovar)
+
+
+df$serovar <- replace(df$serovar, df$serovar == "Typhi", "a-Typhi")
+df$serovar <- replace(df$serovar, df$serovar == "Typhimurium", "b-Typhimurium")
+df$serovar <- replace(df$serovar, df$serovar == "Enteritidis", "c-Enteritidis")
+df$serovar <- replace(df$serovar, df$serovar == "Newport", "e-Newport")
+
+df$serovar <- replace(df$serovar, df$serovar == "Heidelberg", "f-Heidelberg")
+df$serovar <- replace(df$serovar, df$serovar == "Dublin", "g-Dublin")
+df$serovar <- replace(df$serovar, df$serovar == "Derby", "h-Derby")
+df$serovar <- replace(df$serovar, df$serovar == "Weltevreden", "i-Weltevreden")
+df$serovar <- replace(df$serovar, df$serovar == "Agona", "j-Agona")
+df$serovar <- replace(df$serovar, df$serovar == "Infantis", "k-Infantis")
+
+library(stringi)
+library(ggthemes)
+library(lemon)
+
+df <- df[which(df$value > 0),]
+
+# annotate occurence
+
+df$occ <- taxa_occ[match(df$taxa, taxa_occ$Var1),]$Freq
+df$value_perc <- round(df$value / df$occ * 100)
+
 
 # instead of showing the raw number on the x axis, we can show the %
-p <- ggplot(df, aes(x = reorder(description, dummy) , y=dummy, fill=text)) 
-p <- p + coord_flip() + facet_grid(group ~ taxa, scale="free")
-p <- p + geom_bar(stat = "identity") + theme_classic() 
-p <- p + scale_fill_manual(values = c("#f7f7f7", "#cccccc", "#969696", "#525252"))
-p <- p + labs(x = "", y = "fraction of genomes (Typhimurium)", fill = "number of HMM matches")
-p
-```
-
-
-```{r}
-pdf("figure4.pdf", width = 15, height = 6)
+p <- ggplot(df, aes(x = reorder(description, -value_perc) , y = value_perc, fill= serovar)) 
+p <- p  + facet_grid(.~ group, scales = "free_x", space = "free_y")
+#p <- p + scale_y_log10() 
+p <- p + geom_col(position = position_dodge2(width = 0.9, preserve = "single")) 
+p <- p  + theme_pmuench() 
+#p <- p + geom_bar(stat = "identity", position = "dodge")
+p <- p + labs(x = "", y = "expressed in genomes (%)", fill = "serovar")
+p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+p <- p + scale_fill_Publication() 
+p <- p + scale_y_continuous(expand = c(0,0))
+pdf("figure4_percent2_log.pdf", width = 7, height = 4)
 print(p)
 dev.off()
 ```
