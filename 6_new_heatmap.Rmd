@@ -1,0 +1,187 @@
+Step 3b. Plot HMM occurences as heatmap
+==============================================
+
+**Author**: Philipp Muench (philipp.muench@helmholtz-hzi.de)
+
+**Date**: `r Sys.Date()`
+
+----------------------------------------
+
+<style type="text/css">
+h1 {
+    line-height: 120%;
+}
+</style>
+
+
+load libraries
+
+```{r}
+rm(list = ls())
+library(tidyr)
+library(stringi)
+library(ComplexHeatmap)
+library(ggplot2)
+library(reshape2)
+library(stringr)
+library(gplots)
+library(wesanderson)
+```
+
+
+In `2_screen_genomes.Rmd` we created two tables holding the information of the HMM occurence per genome, we import these two tables which are formatted in the `domtblout` format that stores the domain hits table ([reference](http://eddylab.org/software/hmmer3/3.1b2/Userguide.pdf)). We filter the matches based on the _acc_ column that stores the mean posterior probability of aligned residues in the MEA alignment (from 0 to 1, where 1 indicate a complete alignment). And set this to 0.95. 
+
+just take the best match on the colicin
+
+```{r}
+acc_threshold <- .7
+```
+
+### import colicin hits
+
+```{r}
+colicin <- read.table("genomes/hmm_matches/colicin.csv", sep = ";", header = T, stringsAsFactors = F)
+colicin <- colicin[which(colicin$query_name != "Colicin"),] # remove colicin V matches
+
+# iterate over every genome and extract best match
+colicin_best <- NULL
+for (sample in unique(colicin$sample)) {
+  subset <- colicin[which(colicin$sample == sample),]
+  hit <- which.min(subset$sequence_evalue)
+  colicin_best <- rbind(colicin_best, subset[hit,])
+}
+colicin <- colicin_best # now this table is limited to one match per genome
+colicin[which(colicin$query_name == "Colicin-E1"),]$query_name <- "UniRef50_P02978"
+colicin <- colicin[which(colicin$acc > acc_threshold),]
+```
+
+
+### import lysis hits
+
+```{r}
+lysis <- read.table("genomes/hmm_matches/lysis.csv", sep = ";", header = T, stringsAsFactors = F)
+lysis[which(lysis$query_name == "Phage_lysozyme"),]$query_name <- "PF00959"
+lysis <- lysis[which(lysis$acc > acc_threshold),]
+```
+
+### merge to one data.frame and filter by accuracy
+
+```{r}
+merged_all <- rbind(lysis, colicin)
+merged_all <- merged_all[which(merged_all$acc > acc_threshold),]
+```
+
+### reshape data to long format
+
+```{r}
+merged_all$dummy <- 1
+wide_data <- aggregate(dummy ~ sample + query_name, data = merged_all, FUN = sum)
+wide_data <- spread(wide_data, query_name, dummy)
+wide_data[is.na(wide_data)] <- 0
+rownames(wide_data) <- wide_data$sample
+wide_data$sample <- NULL
+```
+
+add missing genomes that dont have any hits
+
+```{r}
+all_genomes <- read.table("ncbi_list_with_header.csv", header = T, sep = ",")
+all_genomes <- all_genomes[which(all_genomes$RefSeq.FTP != ""),]
+# add missing genomes
+# genome identifier should be something like GCF_000009505.1_ASM950v1_protein
+all_genomes$genome_id <- paste0(basename(as.character(all_genomes$RefSeq.FTP)), "_protein")
+genomes_match <- match(all_genomes$genome_id, rownames(wide_data))
+not_in_wide <- all_genomes[which(is.na(genomes_match)),]
+no_hits <- data.frame(matrix(vector(), nrow(not_in_wide), ncol(wide_data),
+                dimnames = list(c(), colnames(wide_data))),
+                stringsAsFactors = F,
+                row.names = not_in_wide$genome_id)
+no_hits[is.na(no_hits)] <- 0
+wide_data <- rbind(wide_data, no_hits)
+```
+
+
+```{r}
+# load pfam/UniRef annotations
+annot <- read.table("table1.csv", header = T, sep = ";")
+annot_c <- read.table("table3_curated.csv", header = T, sep = ";")
+annot_both <- rbind(annot, annot_c)
+```
+
+use `complex.heatmap` to plot
+
+```{r}
+library(ComplexHeatmap)
+library(circlize)
+wide_data$sample <- NULL
+annotation_data <- data.frame(type = annot_both[match(colnames(wide_data), annot_both$ID),]$group)
+colnames(wide_data) <- annot_both[match(colnames(wide_data), annot_both$ID),]$description
+```
+
+get taxa information to the right shape
+
+```{r}
+taxa <- all_genomes[match(rownames(wide_data), all_genomes$genome_id),]$Organism.Name
+taxa <-  gsub("\\ str.*","",taxa)
+serovar <- stri_extract_last_words(taxa)
+serovar_list <- c("Typhi",
+                  "Typhimurium",
+                  "Enteritidis",
+                  "Newport",
+                  "Heidelberg",
+                  "Dublin",
+                  "Derby",
+                  "Weltevreden",
+                  "Agona",
+                  "Infantis")
+
+serovar <- stri_extract_last_words(taxa)
+serovar[which(!serovar %in% serovar_list)] <- "other"
+
+```
+
+
+```{r, fig.width=12, fig.height=12}
+ha = HeatmapAnnotation(type = as.character(annotation_data$type),
+    col = list(type = c("lysin" = "#b2df8a", "A" = "#a6cee3", "B" = "#1f78b4", "none" = "grey")))
+ha2 = HeatmapAnnotation(barplot = anno_barplot(colSums(wide_data), bar_width = 1, gp = gpar(col = NA, fill = "grey"), 
+    border = FALSE, axis = TRUE))
+
+taxa_type <- rep("other", nrow(wide_data))
+taxa_data = word(taxa,-1)
+taxa_type[which(taxa_data == "DT104")] <- "DT104"
+taxa_type[which(taxa_data == "5-")] <- "5-"
+
+pal <- wes_palette("Zissou1", 100, type = "continuous")
+
+
+ht <- Heatmap(name = "heat", top_annotation = ha2,
+        col = colorRamp2(c(0, 1, 5, 9), c("grey95", "grey50", "grey20", "black")),
+        top_annotation_height = unit(1.5, "cm"),
+        bottom_annotation_height = unit(.5, "cm"),
+        bottom_annotation = ha,
+        wide_data,
+        column_order = order(as.character(annotation_data$type)),
+        cluster_columns = FALSE,
+        cluster_rows = TRUE,
+        show_row_dend = FALSE,
+        row_names_side = "left",
+        show_row_names = FALSE) + Heatmap(serovar, name = "subtype", col = c("Typhi" = "#386cb0", 
+                                                                            "Agona" = "#ffff33", 
+                                                                            "Enteritidis" = "#7fc97f",
+                                                                            "Infantis" = "black",
+                                                                            "Newport" = "#ef3b2c",
+                                                                            "Typhimurium" = "#fdb462",
+                                                                            "Derby" = "#fb9a99",
+                                                                            "Heidelberg" = "#662506",
+                                                                            "Weltevreden" = "#984ea3",
+                                                                            "Dublin" = "#a6cee3",
+                                                                            "other" = "grey"
+                                                                            ), 
+    width = unit(0.5, "cm"))
+
+
+pdf(file = "ht2.pdf", width = 4, height = 6)
+print(ht)
+dev.off()
+```
